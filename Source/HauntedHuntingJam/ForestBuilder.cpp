@@ -22,7 +22,9 @@ void AForestBuilder::BeginPlay()
 
 	auto map = m_generator.GenerateForest();
 
-	OutputToBMP(map, FPaths::ProjectDir() + "/trees");
+	OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
+
+
 }
 
 // Called every frame
@@ -36,7 +38,7 @@ void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString fi
 {
 	for (auto & chunk : map) {
 		FString filename = filename_base;
-		filename.Appendf(TEXT("%f-%f.bmp"), chunk.rect.Left, chunk.rect.Bottom);
+		filename.Appendf(TEXT("%.0f_%.0f.bmp"), chunk.rect.Left, chunk.rect.Bottom);
 		OutputToBMP(chunk, filename);
 	}
 }
