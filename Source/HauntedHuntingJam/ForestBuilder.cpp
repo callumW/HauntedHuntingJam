@@ -13,6 +13,7 @@ AForestBuilder::AForestBuilder()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
 }
 
 // Called when the game starts or when spawned
@@ -22,7 +23,49 @@ void AForestBuilder::BeginPlay()
 
 	auto map = m_generator.GenerateForest();
 
+	for (auto const& chunk : map) {
+		SpawnTrees(chunk);
+	}
+
 	OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
+}
+
+void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
+{
+	for (auto & tree : chunk.trees) {
+		SpawnTreeAt(tree.location);
+	}
+}
+
+void AForestBuilder::SpawnTreeAt(FVector const& loc)
+{
+	if (RootComponent) {
+		auto tree = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("tree"));
+
+		if (tree) {
+			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"));
+
+			if (mesh) {
+				tree->SetStaticMesh(mesh);
+
+				UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
+				rooms.Add(tree);
+				tree->RegisterComponent();
+				tree->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+
+				tree->SetRelativeLocation(loc, false);
+			}
+			else {
+				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
+			}
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("Failed to create tree!"));
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Warning, TEXT("No Room component!"));
+	}
 }
 
 void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base)
