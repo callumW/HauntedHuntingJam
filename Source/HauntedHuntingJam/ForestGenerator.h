@@ -3,6 +3,7 @@
 #pragma once
 
 #include <vector>
+#include <random>
 
 #include "CoreMinimal.h"
 #include "Layout/SlateRect.h"	// For FSlateRect
@@ -27,4 +28,7 @@ public:
 	~ForestGenerator();
 
 	std::vector<map_chunk_t> GenerateForest();
+
+private:
+	std::mt19937 m_random_engine;
 };
