@@ -22,7 +22,7 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void SpawnTrees(map_chunk_t const& chunk);
 
-	void SpawnTreeAt(FVector const& loc);
+	void SpawnTreeAt(FVector const& loc, FRotator const& rot);
 
 	TArray<USceneComponent*> rooms;
 

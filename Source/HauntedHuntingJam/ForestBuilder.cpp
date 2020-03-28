@@ -33,11 +33,11 @@ void AForestBuilder::BeginPlay()
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 {
 	for (auto & tree : chunk.trees) {
-		SpawnTreeAt(tree.location);
+		SpawnTreeAt(tree.location, tree.rotation);
 	}
 }
 
-void AForestBuilder::SpawnTreeAt(FVector const& loc)
+void AForestBuilder::SpawnTreeAt(FVector const& loc, FRotator const& rot)
 {
 	if (RootComponent) {
 		FString object_name = TEXT("tree");
@@ -58,6 +58,7 @@ void AForestBuilder::SpawnTreeAt(FVector const& loc)
 				tree->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
 				tree->SetRelativeLocation(loc, false);
+				tree->AddLocalRotation(rot, false);
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
