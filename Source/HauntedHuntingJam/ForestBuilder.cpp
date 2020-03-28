@@ -23,15 +23,6 @@ void AForestBuilder::BeginPlay()
 	auto map = m_generator.GenerateForest();
 
 	OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
-
-
-}
-
-// Called every frame
-void AForestBuilder::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base)
