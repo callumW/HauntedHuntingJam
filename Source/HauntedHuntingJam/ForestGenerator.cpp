@@ -25,7 +25,10 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
     std::uniform_real_distribution<float> x_dist(chunk.rect.Left, chunk.rect.Right);
     std::uniform_real_distribution<float> y_dist(chunk.rect.Top, chunk.rect.Bottom);
 
-    auto get_x = std::bind(x_dist, m_random_engine);
+    std::mt19937 x_engine(m_random_engine());
+    std::mt19937 y_engine(m_random_engine());
+
+    auto get_x = std::bind(x_dist, x_engine);
     auto get_y = std::bind(y_dist, m_random_engine);
 
     size_t const num_points = 30;
