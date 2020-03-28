@@ -31,7 +31,7 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
     auto get_x = std::bind(x_dist, x_engine);
     auto get_y = std::bind(y_dist, m_random_engine);
 
-    size_t const num_points = 30;
+    size_t const num_points = 100;
 
     for (size_t i = 0; i < num_points; i++) {
         tree_t tree = {FVector(get_x(), get_y(), 0.0f), FRotator(0.0f)};
