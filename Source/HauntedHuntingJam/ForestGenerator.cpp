@@ -19,10 +19,11 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
     float const height = 4000.0f;
 
     map_chunk_t chunk;
-    chunk.rect = FSlateRect(0 - (width / 2.0f), (height / 2.0f), (width / 2.0f), 0 - (height / 2.0f));
+    // Note: this is a UI Rect so origin is top left
+    chunk.rect = FSlateRect(0 - (width / 2.0f), 0 - (height / 2.0f), (width / 2.0f), (height / 2.0f));
 
     std::uniform_real_distribution<float> x_dist(chunk.rect.Left, chunk.rect.Right);
-    std::uniform_real_distribution<float> y_dist(chunk.rect.Bottom, chunk.rect.Top);
+    std::uniform_real_distribution<float> y_dist(chunk.rect.Top, chunk.rect.Bottom);
 
     auto get_x = std::bind(x_dist, m_random_engine);
     auto get_y = std::bind(y_dist, m_random_engine);
@@ -33,6 +34,8 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
         tree_t tree = {FVector(get_x(), get_y(), 0.0f), FRotator(0.0f)};
         chunk.trees.push_back(tree);
     }
+
+    map.push_back(chunk);
 
     return map;
 }
