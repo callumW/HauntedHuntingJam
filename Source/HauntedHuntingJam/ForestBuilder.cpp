@@ -49,6 +49,8 @@ void AForestBuilder::OutputToBMP(map_chunk_t const& map, FString filename)
 
 	size_t const num_pixels = static_cast<size_t>(width * height);
 
+	// TODO Generate pixel data based on the generated forest.
+
 	std::vector<struct FColor> pixel_data = {num_pixels, FColor(0)};
 
 	IFileManager& file_manager = IFileManager::Get();
