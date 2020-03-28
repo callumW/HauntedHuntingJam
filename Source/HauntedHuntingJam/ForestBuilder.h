@@ -4,6 +4,8 @@
 
 #include "ForestGenerator.h"
 
+#include "Containers/Array.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ForestBuilder.generated.h"
@@ -17,6 +19,12 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base);
 	void OutputToBMP(map_chunk_t const& map, FString filename);
+
+	void SpawnTrees(map_chunk_t const& chunk);
+
+	void SpawnTreeAt(FVector const& loc);
+
+	TArray<USceneComponent*> rooms;
 
 public:
 	// Sets default values for this actor's properties
