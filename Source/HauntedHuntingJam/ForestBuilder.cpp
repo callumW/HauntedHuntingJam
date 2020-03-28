@@ -40,10 +40,14 @@ void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 void AForestBuilder::SpawnTreeAt(FVector const& loc)
 {
 	if (RootComponent) {
-		auto tree = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(), TEXT("tree"));
+		FString object_name = TEXT("tree");
+		object_name.Appendf(TEXT("@(%f,%f,%f)"), loc.X, loc.Y, loc.Z);
+		auto tree = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(),
+			*object_name);
 
 		if (tree) {
-			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr, TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"));
+			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr,
+				TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"));
 
 			if (mesh) {
 				tree->SetStaticMesh(mesh);
