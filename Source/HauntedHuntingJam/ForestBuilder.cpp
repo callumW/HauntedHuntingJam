@@ -36,7 +36,7 @@ void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString fi
 {
 	for (auto & chunk : map) {
 		FString filename = filename_base;
-		filename.Appendf(TEXT("%%f-%f.bmp"), chunk.rect.Left, chunk.rect.Bottom);
+		filename.Appendf(TEXT("%f-%f.bmp"), chunk.rect.Left, chunk.rect.Bottom);
 		OutputToBMP(chunk, filename);
 	}
 }
