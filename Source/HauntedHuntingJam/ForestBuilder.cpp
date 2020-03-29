@@ -33,32 +33,40 @@ void AForestBuilder::BeginPlay()
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 {
 	for (auto & tree : chunk.trees) {
-		SpawnTreeAt(tree.location, tree.rotation);
+		SpawnTreeAt(tree);
 	}
 }
 
-void AForestBuilder::SpawnTreeAt(FVector const& loc, FRotator const& rot)
+void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 {
 	if (RootComponent) {
+
+		FVector const& loc = tree.location;
+		FRotator const& rot = tree.rotation;
+		TCHAR const* mesh_path = tree.mesh_path;
+
+		check(mesh_path != nullptr);
+
 		FString object_name = TEXT("tree");
 		object_name.Appendf(TEXT("@(%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-		auto tree = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(),
+		auto tree_obj = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(),
 			*object_name);
 
-		if (tree) {
+		if (tree_obj) {
+
 			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr,
-				TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"));
+				mesh_path);
 
 			if (mesh) {
-				tree->SetStaticMesh(mesh);
+				tree_obj->SetStaticMesh(mesh);
 
 				UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-				rooms.Add(tree);
-				tree->RegisterComponent();
-				tree->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+				rooms.Add(tree_obj);
+				tree_obj->RegisterComponent();
+				tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-				tree->SetRelativeLocation(loc, false);
-				tree->AddLocalRotation(rot, false);
+				tree_obj->SetRelativeLocation(loc, false);
+				tree_obj->AddLocalRotation(rot, false);
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));

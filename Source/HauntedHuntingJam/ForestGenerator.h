@@ -8,9 +8,13 @@
 #include "CoreMinimal.h"
 #include "Layout/SlateRect.h"	// For FSlateRect
 
+
+extern TCHAR const* TREE_MESH_PATHS[];
+
 typedef struct tree {
 	FVector location;
 	FRotator rotation;
+	TCHAR const* mesh_path = nullptr;
 } tree_t;
 
 typedef struct map_chunk {
