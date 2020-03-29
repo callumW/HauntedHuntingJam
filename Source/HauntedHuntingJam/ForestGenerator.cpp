@@ -21,8 +21,8 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
 {
     std::vector<map_chunk_t> map;
 
-    float const width = 4000.0f;
-    float const height = 4000.0f;
+    float const width = 10000.0f;
+    float const height = 10000.0f;
     size_t const num_meshes = sizeof(TREE_MESH_PATHS) / sizeof(TCHAR*);
 
     map_chunk_t chunk;
@@ -43,7 +43,7 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
     auto get_rotation = std::bind(rot_dist, std::mt19937(m_random_engine()));
     auto get_mesh_path_idx = std::bind(mesh_dist, std::mt19937(m_random_engine()));
 
-    size_t const num_points = 100;
+    size_t const num_points = 300;
 
     for (size_t i = 0; i < num_points; i++) {
         unsigned const mesh_idx = get_mesh_path_idx();
