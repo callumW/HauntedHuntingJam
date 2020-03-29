@@ -3,8 +3,10 @@
 #include "ForestGenerator.h"
 
 TCHAR const* TREE_MESH_PATHS[] = {
-	TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"),
-	TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_4.tree_4'")
+    // TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_1.tree_1'"),  // Scale of this model is kinda wrong
+    TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_2.tree_2'"),
+    TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_3.tree_3'"),
+    TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_4.tree_4'")
 };
 
 ForestGenerator::ForestGenerator()
