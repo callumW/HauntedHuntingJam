@@ -27,7 +27,7 @@ void AForestBuilder::BeginPlay()
 		SpawnTrees(chunk);
 	}
 
-	OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
+	// This works but isn't useful yet OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
 }
 
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
@@ -105,8 +105,7 @@ void AForestBuilder::OutputToBMP(map_chunk_t const& map, FString filename)
 		width,
 		height);
 
-	size_t const pixels_per_point = 1;
-	size_t const num_pixels = static_cast<size_t>(width * height * pixels_per_point);
+	size_t const num_pixels = static_cast<size_t>(width * height);
 
 	std::vector<struct FColor> pixel_data = {num_pixels, FColor(0)};
 
