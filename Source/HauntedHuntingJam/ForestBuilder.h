@@ -24,10 +24,15 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void SpawnTreeAt(tree_t const& tree);
 
-	TArray<USceneComponent*> rooms;
+	void UpdateVisibleTrees(FVector const& player_location);
+
+	TArray<USceneComponent*> trees;
 
 	UPROPERTY(EditAnywhere)
 	AActor* player;
+
+	UPROPERTY(EditAnywhere)
+	float render_distance = 1000.0f;
 
 public:
 	// Sets default values for this actor's properties

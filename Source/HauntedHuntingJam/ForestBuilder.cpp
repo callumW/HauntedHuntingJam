@@ -15,12 +15,35 @@ AForestBuilder::AForestBuilder()
 
 	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
 }
+
 void AForestBuilder::Tick(float delta_seconds)
 {
 	if (player) {
-		auto location = player->GetActorLocation();
+		auto const location = player->GetActorLocation();
 
-		UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
+		// UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
+		UpdateVisibleTrees(location);
+	}
+}
+
+void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
+{
+	for (auto & tree : trees) {
+		auto const tree_location = tree->GetComponentLocation();
+
+		UE_LOG(LogTemp, Display, TEXT("Tree location: (%f,%f,%f)"), tree_location.X, tree_location.Y,
+			tree_location.Z);
+
+		auto const distance_vector = tree_location - player_location;
+
+		float const distance = distance_vector.Size();	// get magnitude
+
+		if (distance < render_distance && !tree->bVisible) {
+			tree->ToggleVisibility(true);
+		}
+		else if (distance > render_distance && tree->bVisible){
+			tree->ToggleVisibility(true);
+		}
 	}
 }
 
@@ -69,7 +92,7 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 				tree_obj->SetStaticMesh(mesh);
 
 				UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-				rooms.Add(tree_obj);
+				trees.Add(tree_obj);
 				tree_obj->RegisterComponent();
 				tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
