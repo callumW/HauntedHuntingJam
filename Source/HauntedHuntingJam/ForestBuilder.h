@@ -26,9 +26,14 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	TArray<USceneComponent*> rooms;
 
+	UPROPERTY(EditAnywhere)
+	AActor* player;
+
 public:
 	// Sets default values for this actor's properties
 	AForestBuilder();
+
+	virtual void Tick(float delta_seconds) override;
 
 protected:
 	// Called when the game starts or when spawned

@@ -11,9 +11,18 @@
 AForestBuilder::AForestBuilder()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
+}
+void AForestBuilder::Tick(float delta_seconds)
+{
+	//UE_LOG(LogTemp, Display, TEXT("TICK"));
+	if (player) {
+		auto location = player->GetActorLocation();
+
+		UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
+	}
 }
 
 // Called when the game starts or when spawned
