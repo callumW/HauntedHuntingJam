@@ -17,7 +17,6 @@ AForestBuilder::AForestBuilder()
 }
 void AForestBuilder::Tick(float delta_seconds)
 {
-	//UE_LOG(LogTemp, Display, TEXT("TICK"));
 	if (player) {
 		auto location = player->GetActorLocation();
 
