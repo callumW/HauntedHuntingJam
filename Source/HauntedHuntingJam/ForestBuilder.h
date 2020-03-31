@@ -43,6 +43,15 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 	UPROPERTY(EditAnywhere)
 	bool spawn_in_editor = false;
 
+	UPROPERTY(EditAnywhere, Category = "Generation")
+	FVector size = FVector(1000.0f, 1000.0f, 1000.0f);
+
+	UPROPERTY(EditAnywhere, Category = "Generation")
+	int32 seed = 3453;
+
+	UPROPERTY(EditAnywhere, Category = "Generation")
+	int32 num_trees = 300;
+
 public:
 	// Sets default values for this actor's properties
 	AForestBuilder();

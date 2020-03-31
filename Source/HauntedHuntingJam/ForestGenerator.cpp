@@ -17,12 +17,14 @@ ForestGenerator::~ForestGenerator()
 {
 }
 
-std::vector<map_chunk_t> ForestGenerator::GenerateForest()
+std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, int32 seed, int32 num_trees)
 {
+
+    // TODO validate input
     std::vector<map_chunk_t> map;
 
-    float const width = 10000.0f;
-    float const height = 10000.0f;
+    float const width = size.X;
+    float const height = size.Y;
     size_t const num_meshes = sizeof(TREE_MESH_PATHS) / sizeof(TCHAR*);
 
     map_chunk_t chunk;
@@ -38,12 +40,14 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest()
 
     check(num_meshes > 1);
 
-    auto get_x = std::bind(x_dist, std::mt19937(m_random_engine()));
-    auto get_y = std::bind(y_dist, std::mt19937(m_random_engine()));
-    auto get_rotation = std::bind(rot_dist, std::mt19937(m_random_engine()));
-    auto get_mesh_path_idx = std::bind(mesh_dist, std::mt19937(m_random_engine()));
+    std::mt19937 random_engine(seed);
 
-    size_t const num_points = 300;
+    auto get_x = std::bind(x_dist, std::mt19937(random_engine()));
+    auto get_y = std::bind(y_dist, std::mt19937(random_engine()));
+    auto get_rotation = std::bind(rot_dist, std::mt19937(random_engine()));
+    auto get_mesh_path_idx = std::bind(mesh_dist, std::mt19937(random_engine()));
+
+    size_t const num_points = static_cast<size_t>(num_trees);
 
     for (size_t i = 0; i < num_points; i++) {
         unsigned const mesh_idx = get_mesh_path_idx();
