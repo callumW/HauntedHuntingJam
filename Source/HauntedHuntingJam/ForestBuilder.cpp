@@ -40,7 +40,7 @@ void AForestBuilder::PostEditChangeProperty(FPropertyChangedEvent & prop_change_
 
 void AForestBuilder::Build()
 {
-	auto map = m_generator.GenerateForest();
+	auto map = m_generator.GenerateForest(size, seed, num_trees);
 
 	for (auto const& chunk : map) {
 		SpawnTrees(chunk);

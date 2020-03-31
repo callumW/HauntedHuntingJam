@@ -31,8 +31,5 @@ public:
 	ForestGenerator();
 	~ForestGenerator();
 
-	std::vector<map_chunk_t> GenerateForest();
-
-private:
-	std::mt19937 m_random_engine;
+	std::vector<map_chunk_t> GenerateForest(FVector const& size, int32 seed, int32 num_trees);
 };
