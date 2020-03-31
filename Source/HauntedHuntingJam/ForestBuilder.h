@@ -26,6 +26,12 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void UpdateVisibleTrees(FVector const& player_location);
 
+	void Build();
+
+	void Refresh();
+
+	void DeleteAllTrees();
+
 	TArray<USceneComponent*> trees;
 
 	UPROPERTY(EditAnywhere)
@@ -34,11 +40,18 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 	UPROPERTY(EditAnywhere)
 	float render_distance = 1000.0f;
 
+	UPROPERTY(EditAnywhere)
+	bool spawn_in_editor = false;
+
 public:
 	// Sets default values for this actor's properties
 	AForestBuilder();
 
 	virtual void Tick(float delta_seconds) override;
+
+	virtual void OnConstruction(FTransform const& transform);
+
+	virtual void PostEditChangeProperty(FPropertyChangedEvent & prop_change_event);
 
 protected:
 	// Called when the game starts or when spawned
