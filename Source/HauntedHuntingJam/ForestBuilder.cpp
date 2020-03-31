@@ -11,18 +11,56 @@
 AForestBuilder::AForestBuilder()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
 }
 
 void AForestBuilder::Tick(float delta_seconds)
 {
-	if (player) {
-		auto const location = player->GetActorLocation();
+	// if (player) {
+	// 	auto const location = player->GetActorLocation();
+	//
+	// 	// UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
+	// 	UpdateVisibleTrees(location);
+	// }
+}
 
-		// UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
-		UpdateVisibleTrees(location);
+void AForestBuilder::OnConstruction(FTransform const& transform)
+{
+	if (spawn_in_editor) {
+		Build();
+	}
+}
+
+void AForestBuilder::PostEditChangeProperty(FPropertyChangedEvent & prop_change_event)
+{
+	Refresh();
+}
+
+void AForestBuilder::Build()
+{
+	auto map = m_generator.GenerateForest();
+
+	for (auto const& chunk : map) {
+		SpawnTrees(chunk);
+	}
+}
+
+void AForestBuilder::Refresh()
+{
+	DeleteAllTrees();
+
+	if (spawn_in_editor) {
+		Build();
+	}
+}
+
+void AForestBuilder::DeleteAllTrees()
+{
+	while (trees.Num() > 0) {
+		auto comp = trees.Pop();
+		comp->DestroyComponent();
 	}
 }
 
@@ -51,14 +89,9 @@ void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
 void AForestBuilder::BeginPlay()
 {
 	Super::BeginPlay();
-
-	auto map = m_generator.GenerateForest();
-
-	for (auto const& chunk : map) {
-		SpawnTrees(chunk);
+	if (!spawn_in_editor) {
+		Build();
 	}
-
-	// This works but isn't useful yet OutputToBMP(map, FPaths::ProjectDir() + "/trees_");
 }
 
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
