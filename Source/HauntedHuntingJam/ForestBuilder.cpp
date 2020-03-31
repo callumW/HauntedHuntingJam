@@ -40,7 +40,7 @@ void AForestBuilder::PostEditChangeProperty(FPropertyChangedEvent & prop_change_
 
 void AForestBuilder::Build()
 {
-	auto map = m_generator.GenerateForest(size, seed, num_trees);
+	auto map = m_generator.GenerateForest(size, seed, num_trees, GetActorLocation(), blocking_volumes);
 
 	for (auto const& chunk : map) {
 		SpawnTrees(chunk);
@@ -124,7 +124,7 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 			if (mesh) {
 				tree_obj->SetStaticMesh(mesh);
 
-				UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
+				// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
 				trees.Add(tree_obj);
 				tree_obj->RegisterComponent();
 				tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);

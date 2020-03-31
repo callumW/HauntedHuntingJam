@@ -2,6 +2,7 @@
 
 #include "ForestGenerator.h"
 
+
 TCHAR const* TREE_MESH_PATHS[] = {
     // TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_1.tree_1'"),  // Scale of this model is kinda wrong
     TEXT("StaticMesh'/Game/FirstPerson/Meshes/Environment/tree_2.tree_2'"),
@@ -17,10 +18,23 @@ ForestGenerator::~ForestGenerator()
 {
 }
 
-std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, int32 seed, int32 num_trees)
+std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, int32 seed, int32 num_trees,
+    FVector const& origin, TArray<ATreeGenerationBlockingVolume*> const& blocking_volumes)
 {
 
-    // TODO validate input
+    auto bounds = blocking_volumes[0]->GetBounds().GetBox();
+
+    UE_LOG(LogTemp, Display, TEXT("blocking volume bounding box: (%f,%f,%f) -> (%f,%f,%f)"),
+        bounds.Max.X, bounds.Max.Y, bounds.Max.Z, bounds.Min.X, bounds.Min.Y, bounds.Min.Z);
+
+    UE_LOG(LogTemp, Display, TEXT("forest origin point: (%f,%f,%f)"), origin.X, origin.Y, origin.Z);
+
+    /*
+        Validate Input:
+         * Verify blocking volumes to not encompass all of size.
+         * verify num_tree is > 1
+         * Verify size is positive
+    */
     std::vector<map_chunk_t> map;
 
     float const width = size.X;
@@ -50,11 +64,34 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
     size_t const num_points = static_cast<size_t>(num_trees);
 
     for (size_t i = 0; i < num_points; i++) {
+
+        FVector tree_location;
+        FVector tree_world_location;
+        tree_world_location.Z = origin.Z;
+        bool location_is_valid = true;
+        do {
+            location_is_valid = true;
+
+            tree_location.X = get_x();
+            tree_location.Y = get_y();
+
+            tree_world_location.X = tree_location.X + origin.X;
+            tree_world_location.Y = tree_location.Y + origin.Y;
+
+            for (auto const& volume : blocking_volumes) {
+                if (volume->EncompassesPoint(tree_world_location)) {
+                    location_is_valid = false;
+                    break;
+                }
+            }
+        }
+        while (!location_is_valid);
+
         unsigned const mesh_idx = get_mesh_path_idx();
 
         check(mesh_idx < num_meshes && mesh_idx >= 0);
 
-        tree_t tree = {FVector(get_x(), get_y(), 0.0f), FRotator(0.0, get_rotation(), 0.0f),
+        tree_t tree = {tree_location, FRotator(0.0, get_rotation(), 0.0f),
             TREE_MESH_PATHS[get_mesh_path_idx()]};
 
         chunk.trees.push_back(tree);
