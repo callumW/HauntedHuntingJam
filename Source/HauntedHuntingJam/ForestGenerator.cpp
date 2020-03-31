@@ -79,7 +79,7 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
             tree_world_location.Y = tree_location.Y + origin.Y;
 
             for (auto const& volume : blocking_volumes) {
-                if (volume->EncompassesPoint(tree_world_location)) {
+                if (volume && volume->EncompassesPoint(tree_world_location)) {
                     location_is_valid = false;
                     break;
                 }
