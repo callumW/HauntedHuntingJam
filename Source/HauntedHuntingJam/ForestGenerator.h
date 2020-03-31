@@ -2,11 +2,14 @@
 
 #pragma once
 
+#include "TreeGenerationBlockingVolume.h"
+
 #include <vector>
 #include <random>
 
 #include "CoreMinimal.h"
 #include "Layout/SlateRect.h"	// For FSlateRect
+#include "Containers/Array.h"
 
 
 extern TCHAR const* TREE_MESH_PATHS[];
@@ -31,5 +34,6 @@ public:
 	ForestGenerator();
 	~ForestGenerator();
 
-	std::vector<map_chunk_t> GenerateForest(FVector const& size, int32 seed, int32 num_trees);
+	std::vector<map_chunk_t> GenerateForest(FVector const& size, int32 seed, int32 num_trees,
+		FVector const& origin, TArray<ATreeGenerationBlockingVolume*> const& blocking_volumes);
 };

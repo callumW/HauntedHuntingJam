@@ -3,9 +3,10 @@
 #pragma once
 
 #include "ForestGenerator.h"
+#include "TreeGenerationBlockingVolume.h"
+
 
 #include "Containers/Array.h"
-
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ForestBuilder.generated.h"
@@ -51,6 +52,9 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
 	int32 num_trees = 300;
+
+	UPROPERTY(EditAnywhere, Category = "Generation")
+	TArray<ATreeGenerationBlockingVolume*> blocking_volumes;
 
 public:
 	// Sets default values for this actor's properties
