@@ -76,11 +76,11 @@ void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
 
 		float const distance = distance_vector.Size();	// get magnitude
 
-		if (distance < render_distance && !tree->bVisible) {
-			tree->ToggleVisibility(true);
+		if (distance < render_distance && !tree->IsVisible()) {
+			tree->SetVisibility(true);
 		}
-		else if (distance > render_distance && tree->bVisible){
-			tree->ToggleVisibility(true);
+		else {
+			tree->SetVisibility(false);
 		}
 	}
 }
