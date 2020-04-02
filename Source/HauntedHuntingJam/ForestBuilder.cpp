@@ -45,7 +45,22 @@ void AForestBuilder::PostEditChangeProperty(FPropertyChangedEvent & prop_change_
 
 void AForestBuilder::Build()
 {
+	// TODO Validate parameters!
 	auto map = m_generator.GenerateForest(size, seed, num_trees, GetActorLocation(), blocking_volumes);
+
+	grid_ele_size_x = size.X / num_divisions_culling;
+	grid_ele_size_y = size.Y / num_divisions_culling;
+
+	auto const origin_location = GetActorLocation();
+
+	offset = origin_location - size / 2.0f;
+
+
+	for (float x = 0.0f; x < size.X; x += 1.0f) {
+		for (float y = 0.0f; y < size.Y; y += 1.0f) {
+			culling_grid.Add({{}, FVector{x+offset.X, y+offset.Y, origin_location.Z}});
+		}
+	}
 
 	for (auto const& chunk : map) {
 		SpawnTrees(chunk);
@@ -63,6 +78,7 @@ void AForestBuilder::Refresh()
 
 void AForestBuilder::DeleteAllTrees()
 {
+	culling_grid.Empty();
 	while (trees.Num() > 0) {
 		auto comp = trees.Pop();
 		comp->DestroyComponent();
@@ -102,11 +118,37 @@ void AForestBuilder::BeginPlay()
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 {
 	for (auto & tree : chunk.trees) {
-		SpawnTreeAt(tree);
+		auto obj = SpawnTreeAt(tree);
+		if (obj) {
+			auto grid_chunk = GetCullingGridChunk(obj->GetComponentLocation());
+			if (grid_chunk) {
+				obj->SetVisibility(false);
+				grid_chunk->elements.Add(obj);
+			}
+			else {
+				UE_LOG(LogTemp, Display, TEXT("Failed to get grid chunk"));
+			}
+		}
 	}
 }
 
-void AForestBuilder::SpawnTreeAt(tree_t const& tree)
+culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
+{
+	auto adjust_loc = loc - offset;
+
+	int32 x = static_cast<int32>(adjust_loc.X / grid_ele_size_x);
+	int32 y = static_cast<int32>(adjust_loc.Y / grid_ele_size_y);
+
+	UE_LOG(LogTemp, Display, TEXT("Calculated chunk grid: (%d, %d) for (%f,%f,%f)"), x, y, loc.X, loc.Y, loc.Z);
+
+	if ((x < 0) || (y < 0) || (x * num_divisions_culling + y > culling_grid.Num())) {
+		return nullptr;
+	}
+
+	return culling_grid.GetData() + x * num_divisions_culling + y;
+}
+
+USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)
 {
 	if (RootComponent) {
 
@@ -136,6 +178,8 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 
 				tree_obj->SetRelativeLocation(loc, false);
 				tree_obj->AddLocalRotation(rot, false);
+
+				return tree_obj;
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
@@ -148,6 +192,8 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("No Room component!"));
 	}
+
+	return nullptr;
 }
 
 void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base)
