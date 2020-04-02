@@ -99,12 +99,16 @@ void AForestBuilder::ClearVisibleTrees()
 void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
 {
 	ClearVisibleTrees();
-	auto chunk = GetCullingGridChunk(player_location);
+	TArray<culling_chunk_t*> chunks;
 
-	if (chunk) {
-		for (auto & ele : chunk->elements) {
-			visible_last_round.Add(ele);
-			ele->SetVisibility(true);
+	GetCullingGridChunks(player_location, chunks);
+	for (auto & chunk : chunks) {
+		if (chunk) {
+			for (auto & ele : chunk->elements) {
+				UE_LOG(LogTemp, Display, TEXT("Setting tree as visible"));
+				ele->SetVisibility(true);
+				visible_last_round.Add(ele);
+			}
 		}
 	}
 }
@@ -161,7 +165,7 @@ culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
 	return culling_grid.GetData() + x * num_divisions_culling + y;
 }
 
-void AForestBuilder::GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*> chunks)
+void AForestBuilder::GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*>& chunks)
 {
 	int32 const render_dist_x = static_cast<int32>(render_distance / grid_ele_size_x);
 	int32 const render_dist_y = static_cast<int32>(render_distance / grid_ele_size_y);

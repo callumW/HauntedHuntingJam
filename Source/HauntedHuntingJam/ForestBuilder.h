@@ -41,7 +41,7 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	FVector2D GetCullingGridCoord(FVector const& loc);
 	culling_chunk_t* GetCullingGridChunk(FVector const& loc);
-	void GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*> chunks);
+	void GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*>& chunks);
 
 	void ClearVisibleTrees();
 
