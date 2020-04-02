@@ -7,11 +7,14 @@
 #include "TreeGenerationBlockingVolume.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class HAUNTEDHUNTINGJAM_API ATreeGenerationBlockingVolume : public AVolume
 {
 	GENERATED_BODY()
-	
+
+public:
+	ATreeGenerationBlockingVolume();
+
 };

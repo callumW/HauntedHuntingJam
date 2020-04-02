@@ -21,14 +21,6 @@ ForestGenerator::~ForestGenerator()
 std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, int32 seed, int32 num_trees,
     FVector const& origin, TArray<ATreeGenerationBlockingVolume*> const& blocking_volumes)
 {
-
-    auto bounds = blocking_volumes[0]->GetBounds().GetBox();
-
-    UE_LOG(LogTemp, Display, TEXT("blocking volume bounding box: (%f,%f,%f) -> (%f,%f,%f)"),
-        bounds.Max.X, bounds.Max.Y, bounds.Max.Z, bounds.Min.X, bounds.Min.Y, bounds.Min.Z);
-
-    UE_LOG(LogTemp, Display, TEXT("forest origin point: (%f,%f,%f)"), origin.X, origin.Y, origin.Z);
-
     /*
         Validate Input:
          * Verify blocking volumes to not encompass all of size.

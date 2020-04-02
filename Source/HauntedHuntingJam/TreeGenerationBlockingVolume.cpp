@@ -3,3 +3,8 @@
 
 #include "TreeGenerationBlockingVolume.h"
 
+ATreeGenerationBlockingVolume::ATreeGenerationBlockingVolume()
+    :Super()
+{
+    SetActorEnableCollision(false);
+}
