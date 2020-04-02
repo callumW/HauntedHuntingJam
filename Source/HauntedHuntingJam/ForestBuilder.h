@@ -41,6 +41,8 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	culling_chunk_t* GetCullingGridChunk(FVector const& loc);
 
+	void ClearVisibleTrees();
+
 	TArray<USceneComponent*> trees;
 
 	TArray<culling_chunk_t> culling_grid;

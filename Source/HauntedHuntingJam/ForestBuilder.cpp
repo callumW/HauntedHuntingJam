@@ -26,7 +26,7 @@ void AForestBuilder::Tick(float delta_seconds)
 		if (dist_from_last_update.Size() > movement_threshold) {
 			UE_LOG(LogTemp, Display, TEXT("Culling Trees"));
 			last_update_location = location;
-			// UpdateVisibleTrees(location);
+			UpdateVisibleTrees(location);
 		}
 	}
 }
@@ -56,11 +56,13 @@ void AForestBuilder::Build()
 	offset = origin_location - size / 2.0f;
 
 
-	for (float x = 0.0f; x < size.X; x += 1.0f) {
-		for (float y = 0.0f; y < size.Y; y += 1.0f) {
+	for (float x = 0.0f; x < size.X; x += grid_ele_size_x) {
+		for (float y = 0.0f; y < size.Y; y += grid_ele_size_y) {
 			culling_grid.Add({{}, FVector{x+offset.X, y+offset.Y, origin_location.Z}});
 		}
 	}
+
+	UE_LOG(LogTemp, Display, TEXT("culling grid size: %u"), culling_grid.Num());
 
 	for (auto const& chunk : map) {
 		SpawnTrees(chunk);
@@ -85,23 +87,24 @@ void AForestBuilder::DeleteAllTrees()
 	}
 }
 
+void AForestBuilder::ClearVisibleTrees()
+{
+	for (auto & ele : visible_last_round) {
+		ele->SetVisibility(false);
+	}
+
+	visible_last_round.Empty();
+}
+
 void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
 {
-	for (auto & tree : trees) {
-		auto const tree_location = tree->GetComponentLocation();
+	ClearVisibleTrees();
+	auto chunk = GetCullingGridChunk(player_location);
 
-		UE_LOG(LogTemp, Display, TEXT("Tree location: (%f,%f,%f)"), tree_location.X, tree_location.Y,
-			tree_location.Z);
-
-		auto const distance_vector = tree_location - player_location;
-
-		float const distance = distance_vector.Size();	// get magnitude
-
-		if (distance < render_distance && !tree->IsVisible()) {
-			tree->SetVisibility(true);
-		}
-		else {
-			tree->SetVisibility(false);
+	if (chunk) {
+		for (auto & ele : chunk->elements) {
+			visible_last_round.Add(ele);
+			ele->SetVisibility(true);
 		}
 	}
 }
