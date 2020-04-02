@@ -22,6 +22,7 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
     FVector const& origin, TArray<ATreeGenerationBlockingVolume*> const& blocking_volumes)
 {
     /*
+        @before pull request
         Validate Input:
          * Verify blocking volumes to not encompass all of size.
          * verify num_tree is > 1
