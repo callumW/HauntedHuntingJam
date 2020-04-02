@@ -135,12 +135,22 @@ void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 	}
 }
 
-culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
+FVector2D AForestBuilder::GetCullingGridCoord(FVector const& loc)
 {
 	auto adjust_loc = loc - offset;
 
-	int32 x = static_cast<int32>(adjust_loc.X / grid_ele_size_x);
-	int32 y = static_cast<int32>(adjust_loc.Y / grid_ele_size_y);
+	float x = adjust_loc.X / grid_ele_size_x;
+	float y = adjust_loc.Y / grid_ele_size_y;
+
+	return FVector2D{x, y};
+}
+
+culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
+{
+	auto coord = GetCullingGridCoord(loc);
+
+	int32 x = static_cast<int32>(coord.X);
+	int32 y = static_cast<int32>(coord.Y);
 
 	UE_LOG(LogTemp, Display, TEXT("Calculated chunk grid: (%d, %d) for (%f,%f,%f)"), x, y, loc.X, loc.Y, loc.Z);
 
@@ -149,6 +159,34 @@ culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
 	}
 
 	return culling_grid.GetData() + x * num_divisions_culling + y;
+}
+
+void AForestBuilder::GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*> chunks)
+{
+	int32 const render_dist_x = static_cast<int32>(render_distance / grid_ele_size_x);
+	int32 const render_dist_y = static_cast<int32>(render_distance / grid_ele_size_y);
+
+	auto coords = GetCullingGridCoord(loc);
+
+	int32 x = static_cast<int32>(coords.X);
+	int32 y = static_cast<int32>(coords.Y);
+
+	int32 min_x = x - render_dist_x;
+	int32 max_x = x + render_dist_x;
+	int32 min_y = y - render_dist_y;
+	int32 max_y= y + render_dist_y;
+
+	if (min_x < 0) min_x = 0;
+	if (max_x >= num_divisions_culling) max_x = num_divisions_culling - 1;
+
+	if (min_y < 0) min_y = 0;
+	if (max_y >= num_divisions_culling) max_y = num_divisions_culling - 1;
+
+	for (int32 x_idx = min_x; x_idx <= max_x; x_idx++) {
+		for (int32 y_idx = min_y; y_idx <= max_y; y_idx++) {
+			chunks.Add(culling_grid.GetData() + x_idx * num_divisions_culling + y_idx);
+		}
+	}
 }
 
 USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)

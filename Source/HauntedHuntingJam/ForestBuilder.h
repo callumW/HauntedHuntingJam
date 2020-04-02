@@ -5,7 +5,7 @@
 #include "ForestGenerator.h"
 #include "TreeGenerationBlockingVolume.h"
 
-
+#include "Math/Vector2D.h"
 #include "Containers/Array.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -39,7 +39,9 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void DeleteAllTrees();
 
+	FVector2D GetCullingGridCoord(FVector const& loc);
 	culling_chunk_t* GetCullingGridChunk(FVector const& loc);
+	void GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*> chunks);
 
 	void ClearVisibleTrees();
 
