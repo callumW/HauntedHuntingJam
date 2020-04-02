@@ -5,17 +5,10 @@
 #include "ForestGenerator.h"
 #include "TreeGenerationBlockingVolume.h"
 
-#include "Math/Vector2D.h"
 #include "Containers/Array.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ForestBuilder.generated.h"
-
-
-typedef struct culling_chunk {
-	TArray<USceneComponent*> elements;
-	FVector location;
-} culling_chunk_t;
 
 UCLASS()
 class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
@@ -29,9 +22,7 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void SpawnTrees(map_chunk_t const& chunk);
 
-	USceneComponent* SpawnTreeAt(tree_t const& tree);
-
-	void UpdateVisibleTrees(FVector const& player_location);
+	void SpawnTreeAt(tree_t const& tree);
 
 	void Build();
 
@@ -39,32 +30,13 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void DeleteAllTrees();
 
-	FVector2D GetCullingGridCoord(FVector const& loc);
-	culling_chunk_t* GetCullingGridChunk(FVector const& loc);
-	void GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*>& chunks);
-
-	void ClearVisibleTrees();
-
 	TArray<USceneComponent*> trees;
-
-	TArray<culling_chunk_t> culling_grid;
-	float grid_ele_size_x = 0.0f;
-	float grid_ele_size_y = 0.0f;
-	FVector offset;
-
-	TArray<USceneComponent*> visible_last_round;
 
 	UPROPERTY(EditAnywhere)
 	AActor* player;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Maximum distance from player before hiding trees"))
 	float render_distance = 1000.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Maximum distance player can move before tree culling takes place"))
-	float movement_threshold = 100.0f;
-
-	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Number of grid divisions along each axis for culling grid"))
-	int32 num_divisions_culling = 12;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 	bool spawn_in_editor = false;
