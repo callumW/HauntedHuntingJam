@@ -11,24 +11,14 @@
 AForestBuilder::AForestBuilder()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
 }
 
 void AForestBuilder::Tick(float delta_seconds)
 {
-	static FVector last_update_location{0.0f};
-	if (player) {
-		auto const location = player->GetActorLocation();
-		auto const dist_from_last_update = last_update_location - location;
 
-		if (dist_from_last_update.Size() > movement_threshold) {
-			UE_LOG(LogTemp, Display, TEXT("Culling Trees"));
-			last_update_location = location;
-			UpdateVisibleTrees(location);
-		}
-	}
 }
 
 void AForestBuilder::OnConstruction(FTransform const& transform)
@@ -48,22 +38,6 @@ void AForestBuilder::Build()
 	// TODO Validate parameters!
 	auto map = m_generator.GenerateForest(size, seed, num_trees, GetActorLocation(), blocking_volumes);
 
-	grid_ele_size_x = size.X / num_divisions_culling;
-	grid_ele_size_y = size.Y / num_divisions_culling;
-
-	auto const origin_location = GetActorLocation();
-
-	offset = origin_location - size / 2.0f;
-
-
-	for (float x = 0.0f; x < size.X; x += grid_ele_size_x) {
-		for (float y = 0.0f; y < size.Y; y += grid_ele_size_y) {
-			culling_grid.Add({{}, FVector{x+offset.X, y+offset.Y, origin_location.Z}});
-		}
-	}
-
-	UE_LOG(LogTemp, Display, TEXT("culling grid size: %u"), culling_grid.Num());
-
 	for (auto const& chunk : map) {
 		SpawnTrees(chunk);
 	}
@@ -80,36 +54,9 @@ void AForestBuilder::Refresh()
 
 void AForestBuilder::DeleteAllTrees()
 {
-	culling_grid.Empty();
 	while (trees.Num() > 0) {
 		auto comp = trees.Pop();
 		comp->DestroyComponent();
-	}
-}
-
-void AForestBuilder::ClearVisibleTrees()
-{
-	for (auto & ele : visible_last_round) {
-		ele->SetVisibility(false);
-	}
-
-	visible_last_round.Empty();
-}
-
-void AForestBuilder::UpdateVisibleTrees(FVector const& player_location)
-{
-	ClearVisibleTrees();
-	TArray<culling_chunk_t*> chunks;
-
-	GetCullingGridChunks(player_location, chunks);
-	for (auto & chunk : chunks) {
-		if (chunk) {
-			for (auto & ele : chunk->elements) {
-				UE_LOG(LogTemp, Display, TEXT("Setting tree as visible"));
-				ele->SetVisibility(true);
-				visible_last_round.Add(ele);
-			}
-		}
 	}
 }
 
@@ -125,75 +72,11 @@ void AForestBuilder::BeginPlay()
 void AForestBuilder::SpawnTrees(map_chunk_t const& chunk)
 {
 	for (auto & tree : chunk.trees) {
-		auto obj = SpawnTreeAt(tree);
-		if (obj) {
-			auto grid_chunk = GetCullingGridChunk(obj->GetComponentLocation());
-			if (grid_chunk) {
-				obj->SetVisibility(false);
-				grid_chunk->elements.Add(obj);
-			}
-			else {
-				UE_LOG(LogTemp, Display, TEXT("Failed to get grid chunk"));
-			}
-		}
+		SpawnTreeAt(tree);
 	}
 }
 
-FVector2D AForestBuilder::GetCullingGridCoord(FVector const& loc)
-{
-	auto adjust_loc = loc - offset;
-
-	float x = adjust_loc.X / grid_ele_size_x;
-	float y = adjust_loc.Y / grid_ele_size_y;
-
-	return FVector2D{x, y};
-}
-
-culling_chunk_t* AForestBuilder::GetCullingGridChunk(FVector const& loc)
-{
-	auto coord = GetCullingGridCoord(loc);
-
-	int32 x = static_cast<int32>(coord.X);
-	int32 y = static_cast<int32>(coord.Y);
-
-	UE_LOG(LogTemp, Display, TEXT("Calculated chunk grid: (%d, %d) for (%f,%f,%f)"), x, y, loc.X, loc.Y, loc.Z);
-
-	if ((x < 0) || (y < 0) || (x * num_divisions_culling + y > culling_grid.Num())) {
-		return nullptr;
-	}
-
-	return culling_grid.GetData() + x * num_divisions_culling + y;
-}
-
-void AForestBuilder::GetCullingGridChunks(FVector const& loc, TArray<culling_chunk_t*>& chunks)
-{
-	int32 const render_dist_x = static_cast<int32>(render_distance / grid_ele_size_x);
-	int32 const render_dist_y = static_cast<int32>(render_distance / grid_ele_size_y);
-
-	auto coords = GetCullingGridCoord(loc);
-
-	int32 x = static_cast<int32>(coords.X);
-	int32 y = static_cast<int32>(coords.Y);
-
-	int32 min_x = x - render_dist_x;
-	int32 max_x = x + render_dist_x;
-	int32 min_y = y - render_dist_y;
-	int32 max_y= y + render_dist_y;
-
-	if (min_x < 0) min_x = 0;
-	if (max_x >= num_divisions_culling) max_x = num_divisions_culling - 1;
-
-	if (min_y < 0) min_y = 0;
-	if (max_y >= num_divisions_culling) max_y = num_divisions_culling - 1;
-
-	for (int32 x_idx = min_x; x_idx <= max_x; x_idx++) {
-		for (int32 y_idx = min_y; y_idx <= max_y; y_idx++) {
-			chunks.Add(culling_grid.GetData() + x_idx * num_divisions_culling + y_idx);
-		}
-	}
-}
-
-USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)
+void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 {
 	if (RootComponent) {
 
@@ -203,10 +86,7 @@ USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)
 
 		check(mesh_path != nullptr);
 
-		FString object_name = TEXT("tree");
-		object_name.Appendf(TEXT("@(%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-		auto tree_obj = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass(),
-			*object_name);
+		auto tree_obj = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
 
 		if (tree_obj) {
 
@@ -224,7 +104,8 @@ USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)
 				tree_obj->SetRelativeLocation(loc, false);
 				tree_obj->AddLocalRotation(rot, false);
 
-				return tree_obj;
+				tree_obj->LDMaxDrawDistance = render_distance;
+				tree_obj->SetCachedMaxDrawDistance(render_distance);
 			}
 			else {
 				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
@@ -237,8 +118,6 @@ USceneComponent* AForestBuilder::SpawnTreeAt(tree_t const& tree)
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("No Room component!"));
 	}
-
-	return nullptr;
 }
 
 void AForestBuilder::OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base)
