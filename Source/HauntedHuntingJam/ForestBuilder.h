@@ -10,6 +10,10 @@
 #include "GameFramework/Actor.h"
 #include "ForestBuilder.generated.h"
 
+static float const DEFAULT_TREE_RENDER_DIST = 5000.0f;
+static int32 const DEFAULT_NUM_TREES = 300;
+static float const DEFAULT_SPAWN_AREA_DIM = 10000.0f;
+
 UCLASS()
 class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 {
@@ -28,6 +32,8 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void Refresh();
 
+	void ValidateParameters();
+
 	void DeleteAllTrees();
 
 	TArray<USceneComponent*> trees;
@@ -36,19 +42,19 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 	AActor* player;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Maximum distance from player before hiding trees"))
-	float render_distance = 1000.0f;
+	float render_distance = DEFAULT_TREE_RENDER_DIST;
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 	bool spawn_in_editor = false;
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
-	FVector size = FVector(1000.0f, 1000.0f, 1000.0f);
+	FVector size = FVector(DEFAULT_SPAWN_AREA_DIM, DEFAULT_SPAWN_AREA_DIM, 1.0f);
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
 	int32 seed = 3453;
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
-	int32 num_trees = 300;
+	int32 num_trees = DEFAULT_NUM_TREES;
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
 	TArray<ATreeGenerationBlockingVolume*> blocking_volumes;

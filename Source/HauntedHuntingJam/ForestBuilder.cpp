@@ -30,12 +30,36 @@ void AForestBuilder::OnConstruction(FTransform const& transform)
 
 void AForestBuilder::PostEditChangeProperty(FPropertyChangedEvent & prop_change_event)
 {
+	ValidateParameters();
 	Refresh();
+}
+
+void AForestBuilder::ValidateParameters()
+{
+	if (render_distance < 0.0f) {
+		UE_LOG(LogTemp, Warning, TEXT("Cannot have negative render distance: %f"), render_distance);
+		render_distance = DEFAULT_TREE_RENDER_DIST;
+	}
+
+	if (num_trees < 0) {
+		UE_LOG(LogTemp, Warning, TEXT("Cannot have negative number of trees: %f"), num_trees);
+		num_trees = DEFAULT_NUM_TREES;
+	}
+
+	if (size.X < 0.0f) {
+		UE_LOG(LogTemp, Warning, TEXT("Cannot have negative width of spawn area: %f"), size.X);
+		size.X = DEFAULT_SPAWN_AREA_DIM;
+	}
+
+	if (size.Y < 0.0f) {
+		UE_LOG(LogTemp, Warning, TEXT("Cannot have negative height of spawn area: %f"), size.Y);
+		size.Y = DEFAULT_SPAWN_AREA_DIM;
+	}
 }
 
 void AForestBuilder::Build()
 {
-	// TODO Validate parameters!
+	ValidateParameters();
 	auto map = m_generator.GenerateForest(size, seed, num_trees, GetActorLocation(), blocking_volumes);
 
 	for (auto const& chunk : map) {
