@@ -38,10 +38,13 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 	UPROPERTY(EditAnywhere)
 	AActor* player;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Maximum distance from player before hiding trees"))
 	float render_distance = 1000.0f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Gameplay", meta=(ToolTip="Maximum distance player can move before tree culling takes place"))
+	float movement_threshold = 100.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Gameplay")
 	bool spawn_in_editor = false;
 
 	UPROPERTY(EditAnywhere, Category = "Generation")

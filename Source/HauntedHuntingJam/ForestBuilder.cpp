@@ -11,19 +11,24 @@
 AForestBuilder::AForestBuilder()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	if (!RootComponent) RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("forest_root"));
 }
 
 void AForestBuilder::Tick(float delta_seconds)
 {
-	// if (player) {
-	// 	auto const location = player->GetActorLocation();
-	//
-	// 	// UE_LOG(LogTemp, Display, TEXT("Player is @ (%f,%f,%f)"), location.X, location.Y, location.Z);
-	// 	UpdateVisibleTrees(location);
-	// }
+	static FVector last_update_location{0.0f};
+	if (player) {
+		auto const location = player->GetActorLocation();
+		auto const dist_from_last_update = last_update_location - location;
+
+		if (dist_from_last_update.Size() > movement_threshold) {
+			UE_LOG(LogTemp, Display, TEXT("Culling Trees"));
+			last_update_location = location;
+			// UpdateVisibleTrees(location);
+		}
+	}
 }
 
 void AForestBuilder::OnConstruction(FTransform const& transform)
