@@ -21,9 +21,6 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	ForestGenerator m_generator;
 
-	void OutputToBMP(std::vector<map_chunk_t> const& map, FString filename_base);
-	void OutputToBMP(map_chunk_t const& map, FString filename);
-
 	void SpawnTrees(map_chunk_t const& chunk);
 
 	void SpawnTreeAt(tree_t const& tree);

@@ -6,9 +6,9 @@
 
 #include <vector>
 #include <random>
+#include <functional>
 
 #include "CoreMinimal.h"
-#include "Layout/SlateRect.h"	// For FSlateRect
 #include "Containers/Array.h"
 
 
@@ -22,7 +22,6 @@ typedef struct tree {
 
 typedef struct map_chunk {
 	std::vector<tree_t> trees;
-	FSlateRect rect;
 } map_chunk_t;
 
 /**
