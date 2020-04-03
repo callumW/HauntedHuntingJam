@@ -147,10 +147,45 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 void AHauntedHuntingJamCharacter::SwitchWeapon()
 {
 	UE_LOG(LogTemp, Display, TEXT("Switch Weapon!"));
+	weapon_mode++;
+
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+			UE_LOG(LogTemp, Display, TEXT("Gun"));
+			break;
+		case WEAPON_MODE::HANDS:
+			UE_LOG(LogTemp, Display, TEXT("Hands"));
+			break;
+		default:
+			UE_LOG(LogTemp, Display, TEXT("Unknown mode"));
+	}
+
+	UpdateWeaponMode();
+}
+
+void AHauntedHuntingJamCharacter::UpdateWeaponMode()
+{
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+		{
+			Mesh1P->SetVisibility(true);
+			FP_Gun->SetVisibility(true);
+			break;
+		}
+		case WEAPON_MODE::HANDS:
+		{
+			Mesh1P->SetVisibility(false);
+			FP_Gun->SetVisibility(false);
+			break;
+		}
+	}
 }
 
 void AHauntedHuntingJamCharacter::OnFire()
 {
+	if (weapon_mode != WEAPON_MODE::GUN) {
+		return;
+	}
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
