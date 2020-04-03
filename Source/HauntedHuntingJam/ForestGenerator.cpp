@@ -21,13 +21,6 @@ ForestGenerator::~ForestGenerator()
 std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, int32 seed, int32 num_trees,
     FVector const& origin, TArray<ATreeGenerationBlockingVolume*> const& blocking_volumes)
 {
-    /*
-        @before pull request
-        Validate Input:
-         * Verify blocking volumes to not encompass all of size.
-         * verify num_tree is > 1
-         * Verify size is positive
-    */
     std::vector<map_chunk_t> map;
 
     float const width = size.X;
@@ -39,7 +32,6 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
     std::uniform_real_distribution<float> rot_dist(0.0f, 360.0f);
     std::uniform_int_distribution<unsigned> mesh_dist(0, num_meshes - 1);
 
-    UE_LOG(LogTemp, Display, TEXT("Number of mesh paths: %u"), num_meshes);
 
     check(num_meshes > 1);
 
