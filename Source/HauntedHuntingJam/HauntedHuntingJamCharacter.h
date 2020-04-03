@@ -106,6 +106,11 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	/**
+	 * Called via input to switch the weapon
+	 */
+	void SwitchWeapon();
+
 	struct TouchData
 	{
 		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}

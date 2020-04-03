@@ -26,7 +26,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// Create a CameraComponent	
+	// Create a CameraComponent
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
@@ -56,7 +56,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
+	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 
 	// Create VR Controllers.
@@ -86,7 +86,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 
 void AHauntedHuntingJamCharacter::BeginPlay()
 {
-	// Call the base class  
+	// Call the base class
 	Super::BeginPlay();
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
@@ -120,6 +120,9 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHauntedHuntingJamCharacter::OnFire);
 
+	// Bind weapon switch event
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AHauntedHuntingJamCharacter::SwitchWeapon);
+
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -136,6 +139,14 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 	PlayerInputComponent->BindAxis("TurnRate", this, &AHauntedHuntingJamCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AHauntedHuntingJamCharacter::LookUpAtRate);
+}
+
+/**
+ * Called via input to switch the weapon
+ */
+void AHauntedHuntingJamCharacter::SwitchWeapon()
+{
+	UE_LOG(LogTemp, Display, TEXT("Switch Weapon!"));
 }
 
 void AHauntedHuntingJamCharacter::OnFire()
@@ -295,6 +306,6 @@ bool AHauntedHuntingJamCharacter::EnableTouchscreenMovement(class UInputComponen
 		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AHauntedHuntingJamCharacter::TouchUpdate);
 		return true;
 	}
-	
+
 	return false;
 }
