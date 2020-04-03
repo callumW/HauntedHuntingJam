@@ -8,6 +8,23 @@
 
 class UInputComponent;
 
+enum class WEAPON_MODE {
+	GUN,
+	HANDS
+};
+
+WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i)
+{
+	switch (cur_mode) {
+		case WEAPON_MODE::GUN:
+			return cur_mode = WEAPON_MODE::HANDS;
+		case WEAPON_MODE::HANDS:
+			return cur_mode = WEAPON_MODE::GUN;
+		default:
+			return cur_mode = WEAPON_MODE::GUN;
+	}
+}
+
 UCLASS(config=Game)
 class AHauntedHuntingJamCharacter : public ACharacter
 {
@@ -44,6 +61,8 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	/** Motion controller (left hand) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UMotionControllerComponent* L_MotionController;
+
+	WEAPON_MODE weapon_mode = WEAPON_MODE::GUN;
 
 public:
 	AHauntedHuntingJamCharacter();
@@ -110,6 +129,8 @@ protected:
 	 * Called via input to switch the weapon
 	 */
 	void SwitchWeapon();
+
+	void UpdateWeaponMode();
 
 	struct TouchData
 	{
