@@ -34,12 +34,8 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
     float const height = size.Y;
     size_t const num_meshes = sizeof(TREE_MESH_PATHS) / sizeof(TCHAR*);
 
-    map_chunk_t chunk;
-    // Note: this is a UI Rect so origin is top left
-    chunk.rect = FSlateRect(0 - (width / 2.0f), 0 - (height / 2.0f), (width / 2.0f), (height / 2.0f));
-
-    std::uniform_real_distribution<float> x_dist(chunk.rect.Left, chunk.rect.Right);
-    std::uniform_real_distribution<float> y_dist(chunk.rect.Top, chunk.rect.Bottom);
+    std::uniform_real_distribution<float> x_dist(0 - (width / 2.0f), (width / 2.0f));
+    std::uniform_real_distribution<float> y_dist(0 - (height / 2.0f), (height / 2.0f));
     std::uniform_real_distribution<float> rot_dist(0.0f, 360.0f);
     std::uniform_int_distribution<unsigned> mesh_dist(0, num_meshes - 1);
 
@@ -54,8 +50,8 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
     auto get_rotation = std::bind(rot_dist, std::mt19937(random_engine()));
     auto get_mesh_path_idx = std::bind(mesh_dist, std::mt19937(random_engine()));
 
+    map_chunk_t chunk;
     size_t const num_points = static_cast<size_t>(num_trees);
-
     for (size_t i = 0; i < num_points; i++) {
 
         FVector tree_location;
@@ -80,11 +76,11 @@ std::vector<map_chunk_t> ForestGenerator::GenerateForest(FVector const& size, in
         }
         while (!location_is_valid);
 
-        unsigned const mesh_idx = get_mesh_path_idx();
+        unsigned mesh_idx = get_mesh_path_idx();
 
         check(mesh_idx < num_meshes && mesh_idx >= 0);
 
-        tree_t tree = {tree_location, FRotator(0.0, get_rotation(), 0.0f),
+        tree_t tree = {tree_location, FRotator{0.0, get_rotation(), 0.0f},
             TREE_MESH_PATHS[get_mesh_path_idx()]};
 
         chunk.trees.push_back(tree);
