@@ -14,6 +14,7 @@
 #include "Engine/EngineTypes.h"
 #include "TreeComponent.h"
 #include "ForestBuilder.h"
+#include "DrawDebugHelpers.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -243,11 +244,11 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 	FVector const dir = GetActorForwardVector();
 	FVector end = start + dir * RaycastDistance;
 
+	DrawDebugLine(world, start, end, FColor::Red, false, 2.0f);
+
 
 	if (world->LineTraceSingleByChannel(hit_result, start, end, ECollisionChannel::ECC_WorldStatic,
 		query_params, FCollisionResponseParams::DefaultResponseParam)) {
-
-		UE_LOG(LogTemp, Display, TEXT("Found raycast result!"));
 
 		auto actor = hit_result.GetActor();
 		auto hit_component = hit_result.GetComponent();
