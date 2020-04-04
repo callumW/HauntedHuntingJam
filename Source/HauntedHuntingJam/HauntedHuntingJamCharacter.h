@@ -73,6 +73,10 @@ protected:
 	virtual void BeginPlay();
 
 public:
+
+
+	virtual void Tick(float delta_seconds) override;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -105,10 +109,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float RaycastDistance = 100.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between axe swings"))
+	float wood_harvest_rate = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between firing shots"))
+	float gun_fire_rate = 0.5f;
+
 protected:
 
 	/** Fires a projectile. */
 	void OnFire();
+
+	void OnFire(float delta_seconds);
+
+	void StopFire();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
@@ -156,6 +170,9 @@ protected:
 	void EndTouch(const ETouchIndex::Type FingerIndex, const FVector Location);
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
+
+	bool is_firing = false;
+	float time_since_last_fire = 0;
 
 protected:
 	// APawn interface
