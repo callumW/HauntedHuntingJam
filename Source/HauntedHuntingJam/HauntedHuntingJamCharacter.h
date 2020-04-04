@@ -132,6 +132,10 @@ protected:
 
 	void UpdateWeaponMode();
 
+	void ShootGun();
+
+	void Use();
+
 	struct TouchData
 	{
 		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}

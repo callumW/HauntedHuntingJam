@@ -181,11 +181,8 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 	}
 }
 
-void AHauntedHuntingJamCharacter::OnFire()
+void AHauntedHuntingJamCharacter::ShootGun()
 {
-	if (weapon_mode != WEAPON_MODE::GUN) {
-		return;
-	}
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
@@ -229,6 +226,25 @@ void AHauntedHuntingJamCharacter::OnFire()
 		{
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::Use()
+{
+	UE_LOG(LogTemp, Display, TEXT("USE!"));
+}
+
+void AHauntedHuntingJamCharacter::OnFire()
+{
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+			ShootGun();
+			break;
+		case WEAPON_MODE::HANDS:
+			Use();
+			break;
+		default:
+			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
 	}
 }
 
