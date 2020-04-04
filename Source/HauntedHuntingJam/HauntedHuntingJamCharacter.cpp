@@ -259,7 +259,8 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
 			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 			if (tree && forest) {
-				UE_LOG(LogTemp, Display, TEXT("Hit a tree!"));
+				wood_count++;
+				UE_LOG(LogTemp, Display, TEXT("Hit a tree! wood_count = %u"), wood_count);
 				forest->DestroyTree(tree);
 			}
 			else {

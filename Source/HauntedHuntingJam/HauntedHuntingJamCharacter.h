@@ -64,6 +64,8 @@ class AHauntedHuntingJamCharacter : public ACharacter
 
 	WEAPON_MODE weapon_mode = WEAPON_MODE::GUN;
 
+	uint32 wood_count = 0;
+
 public:
 	AHauntedHuntingJamCharacter();
 
