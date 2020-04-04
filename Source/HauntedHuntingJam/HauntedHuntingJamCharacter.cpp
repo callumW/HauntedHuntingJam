@@ -15,7 +15,6 @@
 #include "TreeComponent.h"
 #include "ForestBuilder.h"
 #include "DrawDebugHelpers.h"
-#include "Math/RotationMatrix.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -243,10 +242,8 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 
 	FVector const start = GetPawnViewLocation();
 	FRotator const rotation = GetViewRotation();
-	FRotationMatrix rotation_matrix(rotation);
 
-
-	FVector const dir = rotation_matrix.TransformVector(FVector::ForwardVector);
+	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
 	FVector end = start + dir * RaycastDistance;
 
 	DrawDebugLine(world, start, end, FColor::Red, false, 2.0f);
