@@ -72,3 +72,9 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# macOS files
+*.DS_Store
+
+# Tree Generator files
+trees*.bmp
