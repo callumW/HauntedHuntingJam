@@ -15,6 +15,7 @@
 #include "TreeComponent.h"
 #include "ForestBuilder.h"
 #include "DrawDebugHelpers.h"
+#include "HauntedHuntingJamHUD.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -262,6 +263,18 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 				wood_count++;
 				UE_LOG(LogTemp, Display, TEXT("Hit a tree! wood_count = %u"), wood_count);
 				forest->DestroyTree(tree);
+
+				if (Controller) {
+					APlayerController* player_controller = dynamic_cast<APlayerController*>(Controller);
+					if (player_controller) {
+						// Update HUD
+						AHauntedHuntingJamHUD* HUD = dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+						if (HUD) {
+							HUD->UpdateWoodCount(wood_count);
+						}
+					}
+				}
+
 			}
 			else {
 				UE_LOG(LogTemp, Display, TEXT("Hit not-a-tree"));
