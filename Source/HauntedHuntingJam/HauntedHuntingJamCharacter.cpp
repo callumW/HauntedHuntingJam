@@ -241,7 +241,7 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 	FCollisionQueryParams query_params{TEXT("use_raytrace"), true, this};
 
 	FVector const start = GetPawnViewLocation();
-	FRotator const rotation = GetViewRotation();
+	FRotator const rotation = GetControlRotation();
 
 	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
 	FVector end = start + dir * RaycastDistance;
