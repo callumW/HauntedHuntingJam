@@ -2,7 +2,6 @@
 
 #include "ForestBuilder.h"
 
-#include "TreeComponent.h"
 #include <array>
 
 // Sets default values
@@ -78,6 +77,16 @@ void AForestBuilder::DeleteAllTrees()
 	while (trees.Num() > 0) {
 		auto comp = trees.Pop();
 		comp->DestroyComponent();
+	}
+}
+
+void AForestBuilder::DestroyTree(UTreeComponent* tree)
+{
+	if (trees.Remove(tree) > 0) {
+		tree->DestroyComponent();
+	}
+	else {
+		UE_LOG(LogTemp, Display, TEXT("Failed to remove tree"));
 	}
 }
 

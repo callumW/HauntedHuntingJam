@@ -4,6 +4,7 @@
 
 #include "ForestGenerator.h"
 #include "TreeGenerationBlockingVolume.h"
+#include "TreeComponent.h"
 
 #include "Containers/Array.h"
 #include "CoreMinimal.h"
@@ -65,6 +66,8 @@ public:
 	virtual void OnConstruction(FTransform const& transform);
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent & prop_change_event);
+
+	void DestroyTree(UTreeComponent* tree);
 
 protected:
 	// Called when the game starts or when spawned
