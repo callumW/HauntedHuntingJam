@@ -13,6 +13,7 @@
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "Engine/EngineTypes.h"
 #include "TreeComponent.h"
+#include "ForestBuilder.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -248,13 +249,15 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 
 		UE_LOG(LogTemp, Display, TEXT("Found raycast result!"));
 
+		auto actor = hit_result.GetActor();
 		auto hit_component = hit_result.GetComponent();
 
-		if (hit_component) {
+		if (hit_component && actor) {
+			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
 			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
-			if (tree) {
+			if (tree && forest) {
 				UE_LOG(LogTemp, Display, TEXT("Hit a tree!"));
-				tree->OnHit();
+				forest->DestroyTree(tree);
 			}
 			else {
 				UE_LOG(LogTemp, Display, TEXT("Hit not-a-tree"));
