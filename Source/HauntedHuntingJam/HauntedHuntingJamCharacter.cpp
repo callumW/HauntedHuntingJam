@@ -254,6 +254,7 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 			if (tree) {
 				UE_LOG(LogTemp, Display, TEXT("Hit a tree!"));
+				tree->OnHit();
 			}
 			else {
 				UE_LOG(LogTemp, Display, TEXT("Hit not-a-tree"));

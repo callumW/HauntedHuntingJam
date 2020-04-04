@@ -15,3 +15,8 @@ bool UTreeComponent::Initialize(TCHAR const* mesh_path)
     }
     return false;
 }
+
+void UTreeComponent::OnHit()
+{
+    SetVisibility(false);
+}
