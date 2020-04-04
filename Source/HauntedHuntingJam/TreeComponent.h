@@ -16,4 +16,6 @@ class HAUNTEDHUNTINGJAM_API UTreeComponent : public UStaticMeshComponent
 
 public:
 	bool Initialize(TCHAR const* mesh_path);
+
+	void OnHit();
 };
