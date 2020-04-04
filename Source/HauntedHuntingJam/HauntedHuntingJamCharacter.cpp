@@ -24,6 +24,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
@@ -124,6 +125,7 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHauntedHuntingJamCharacter::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHauntedHuntingJamCharacter::StopFire);
 
 	// Bind weapon switch event
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AHauntedHuntingJamCharacter::SwitchWeapon);
@@ -151,6 +153,10 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
  */
 void AHauntedHuntingJamCharacter::SwitchWeapon()
 {
+	if (is_firing) {	// Can't switch weapon whilst firing
+		return;
+	}
+
 	UE_LOG(LogTemp, Display, TEXT("Switch Weapon!"));
 	weapon_mode++;
 
@@ -188,6 +194,11 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 
 void AHauntedHuntingJamCharacter::ShootGun()
 {
+	if (time_since_last_fire < gun_fire_rate) {
+		return;
+	}
+	time_since_last_fire = 0;
+
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
@@ -295,16 +306,8 @@ void AHauntedHuntingJamCharacter::Use()
 
 void AHauntedHuntingJamCharacter::OnFire()
 {
-	switch (weapon_mode) {
-		case WEAPON_MODE::GUN:
-			ShootGun();
-			break;
-		case WEAPON_MODE::HANDS:
-			Use();
-			break;
-		default:
-			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
-	}
+	is_firing = true;
+	OnFire(-1);
 }
 
 void AHauntedHuntingJamCharacter::OnResetVR()
@@ -418,4 +421,39 @@ bool AHauntedHuntingJamCharacter::EnableTouchscreenMovement(class UInputComponen
 	}
 
 	return false;
+}
+
+void AHauntedHuntingJamCharacter::StopFire()
+{
+	is_firing = false;
+	UE_LOG(LogTemp, Display, TEXT("Stop firing"));
+}
+
+void AHauntedHuntingJamCharacter::Tick(float delta_seconds)
+{
+	if (is_firing) {
+		UE_LOG(LogTemp, Display, TEXT("is_firing!!"));
+		OnFire(delta_seconds);
+	}
+}
+
+void AHauntedHuntingJamCharacter::OnFire(float delta_seconds)
+{
+	if (delta_seconds < 0) {	// Initial fire call
+		time_since_last_fire = 9999999.0f;
+	}
+	else {
+		time_since_last_fire += delta_seconds;
+	}
+
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+			ShootGun();
+			break;
+		case WEAPON_MODE::HANDS:
+			Use();
+			break;
+		default:
+			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
+	}
 }
