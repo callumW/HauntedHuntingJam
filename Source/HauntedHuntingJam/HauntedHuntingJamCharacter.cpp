@@ -12,6 +12,7 @@
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
 #include "Engine/EngineTypes.h"
+#include "TreeComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -247,10 +248,16 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 
 		UE_LOG(LogTemp, Display, TEXT("Found raycast result!"));
 
-		auto hit_actor = hit_result.GetActor();
+		auto hit_component = hit_result.GetComponent();
 
-		if (hit_actor) {
-			UE_LOG(LogTemp, Display, TEXT("Raycast hit: %s"), *hit_actor->GetName());
+		if (hit_component) {
+			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
+			if (tree) {
+				UE_LOG(LogTemp, Display, TEXT("Hit a tree!"));
+			}
+			else {
+				UE_LOG(LogTemp, Display, TEXT("Hit not-a-tree"));
+			}
 		}
 	}
 	else {
