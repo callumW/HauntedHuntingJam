@@ -99,6 +99,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint32 bUsingMotionControllers : 1;
 
+	/** How Far to Raycast when in Use() mode */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float RaycastDistance = 100.0f;
+
 protected:
 
 	/** Fires a projectile. */
@@ -135,6 +139,8 @@ protected:
 	void ShootGun();
 
 	void Use();
+
+	void FindUsableObject();
 
 	struct TouchData
 	{

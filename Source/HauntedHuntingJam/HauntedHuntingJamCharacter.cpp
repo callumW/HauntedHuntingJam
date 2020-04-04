@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "Engine/EngineTypes.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -229,9 +230,39 @@ void AHauntedHuntingJamCharacter::ShootGun()
 	}
 }
 
+void AHauntedHuntingJamCharacter::FindUsableObject()
+{
+	auto world = GetWorld();
+
+	FHitResult hit_result{EForceInit::ForceInit};
+	FCollisionQueryParams query_params{TEXT("use_raytrace"), true, this};
+
+	FVector const start = GetActorLocation();	// TODO need to get camera location?
+	FVector const dir = GetActorForwardVector();
+	FVector end = start + dir * RaycastDistance;
+
+
+	if (world->LineTraceSingleByChannel(hit_result, start, end, ECollisionChannel::ECC_WorldStatic,
+		query_params, FCollisionResponseParams::DefaultResponseParam)) {
+
+		UE_LOG(LogTemp, Display, TEXT("Found raycast result!"));
+
+		auto hit_actor = hit_result.GetActor();
+
+		if (hit_actor) {
+			UE_LOG(LogTemp, Display, TEXT("Raycast hit: %s"), *hit_actor->GetName());
+		}
+	}
+	else {
+		UE_LOG(LogTemp, Display, TEXT("No raycast response!"));
+	}
+
+}
+
 void AHauntedHuntingJamCharacter::Use()
 {
 	UE_LOG(LogTemp, Display, TEXT("USE!"));
+	FindUsableObject();
 }
 
 void AHauntedHuntingJamCharacter::OnFire()
