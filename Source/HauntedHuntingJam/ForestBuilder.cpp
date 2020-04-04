@@ -2,6 +2,7 @@
 
 #include "ForestBuilder.h"
 
+#include "TreeComponent.h"
 #include <array>
 
 // Sets default values
@@ -106,30 +107,22 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 
 		check(mesh_path != nullptr);
 
-		auto tree_obj = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+		auto tree_obj = NewObject<UTreeComponent>(this, UTreeComponent::StaticClass());
 
 		if (tree_obj) {
 
-			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr,
-				mesh_path);
+			tree_obj->Initialize(mesh_path);
 
-			if (mesh) {
-				tree_obj->SetStaticMesh(mesh);
+			// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
+			trees.Add(tree_obj);
+			tree_obj->RegisterComponent();
+			tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-				// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-				trees.Add(tree_obj);
-				tree_obj->RegisterComponent();
-				tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			tree_obj->SetRelativeLocation(loc, false);
+			tree_obj->AddLocalRotation(rot, false);
 
-				tree_obj->SetRelativeLocation(loc, false);
-				tree_obj->AddLocalRotation(rot, false);
-
-				tree_obj->LDMaxDrawDistance = render_distance;
-				tree_obj->SetCachedMaxDrawDistance(render_distance);
-			}
-			else {
-				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
-			}
+			tree_obj->LDMaxDrawDistance = render_distance;
+			tree_obj->SetCachedMaxDrawDistance(render_distance);
 		}
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("Failed to create tree!"));
