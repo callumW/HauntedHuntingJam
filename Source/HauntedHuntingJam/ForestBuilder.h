@@ -67,7 +67,8 @@ public:
 
 	virtual void PostEditChangeProperty(FPropertyChangedEvent & prop_change_event);
 
-	void DestroyTree(UTreeComponent* tree);
+	// return true if tree destroyed
+	bool HitTree(UTreeComponent* tree);
 
 protected:
 	// Called when the game starts or when spawned

@@ -271,36 +271,41 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
 			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 			if (tree && forest) {
-				wood_count++;
-				UE_LOG(LogTemp, Display, TEXT("Hit a tree! wood_count = %u"), wood_count);
-				forest->DestroyTree(tree);
-
-				if (Controller) {
-					APlayerController* player_controller = dynamic_cast<APlayerController*>(Controller);
-					if (player_controller) {
-						// Update HUD
-						AHauntedHuntingJamHUD* HUD = dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
-						if (HUD) {
-							HUD->UpdateWoodCount(wood_count);
-						}
-					}
-				}
-
-			}
-			else {
-				UE_LOG(LogTemp, Display, TEXT("Hit not-a-tree"));
+				AttackTree(forest, tree);
 			}
 		}
 	}
-	else {
-		UE_LOG(LogTemp, Display, TEXT("No raycast response!"));
-	}
+}
 
+void AHauntedHuntingJamCharacter::AttackTree(AForestBuilder* forest, UTreeComponent* tree)
+{
+	if (time_since_last_fire < wood_harvest_rate) {
+		return;
+	}
+	time_since_last_fire = 0;
+
+	if (forest->HitTree(tree)) {
+		wood_count++;
+		UE_LOG(LogTemp, Display, TEXT("Destroyed a tree! wood_count = %u"), wood_count);
+
+		if (Controller) {
+			APlayerController* player_controller =
+				dynamic_cast<APlayerController*>(Controller);
+			if (player_controller) {
+				// Update HUD
+				AHauntedHuntingJamHUD* HUD =
+					dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+				if (HUD) {
+					HUD->UpdateWoodCount(wood_count);
+				}
+			}
+		}
+	}
 }
 
 void AHauntedHuntingJamCharacter::Use()
 {
-	UE_LOG(LogTemp, Display, TEXT("USE!"));
 	FindUsableObject();
 }
 
@@ -432,7 +437,6 @@ void AHauntedHuntingJamCharacter::StopFire()
 void AHauntedHuntingJamCharacter::Tick(float delta_seconds)
 {
 	if (is_firing) {
-		UE_LOG(LogTemp, Display, TEXT("is_firing!!"));
 		OnFire(delta_seconds);
 	}
 }

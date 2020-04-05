@@ -1,6 +1,8 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
+#include "ForestBuilder.h"
+#include "TreeComponent.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
@@ -153,6 +155,8 @@ protected:
 	void UpdateWeaponMode();
 
 	void ShootGun();
+
+	void AttackTree(AForestBuilder* forest, UTreeComponent* tree);
 
 	void Use();
 
