@@ -253,6 +253,12 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 	FHitResult hit_result{EForceInit::ForceInit};
 	FCollisionQueryParams query_params{TEXT("use_raytrace"), true, this};
 
+	/*
+		Right now we get the characters eye level and extend in the direction of the camera to get
+		the end location of our raycast. This isn't quite dead-on for the cursor but it will do for
+		now.
+	*/
+
 	FVector const start = GetPawnViewLocation();
 	FRotator const rotation = GetControlRotation();
 
@@ -271,11 +277,17 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 		auto hit_component = hit_result.GetComponent();
 
 		if (hit_component && actor) {
+			/*
+				Eventually we may want to add a 'UsableClass' base class or something to help us
+				decide what we have found when raycast, for now we can safely assume it is either
+				a tree, or something else which we can't interact with.
+			*/
 			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
 			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
+
 			if (tree && forest) {
 				AttackTree(forest, tree);
-			}
+			}	// Else not something we can interact with.
 		}
 	}
 }
@@ -289,7 +301,6 @@ void AHauntedHuntingJamCharacter::AttackTree(AForestBuilder* forest, UTreeCompon
 
 	if (forest->HitTree(tree)) {
 		wood_count++;
-		UE_LOG(LogTemp, Display, TEXT("Destroyed a tree! wood_count = %u"), wood_count);
 
 		if (Controller) {
 			APlayerController* player_controller =
@@ -315,7 +326,7 @@ void AHauntedHuntingJamCharacter::Use()
 void AHauntedHuntingJamCharacter::OnFire()
 {
 	is_firing = true;
-	OnFire(-1);
+	OnFire(-1);		// -1 signifies that this is our first OnFire() call
 }
 
 void AHauntedHuntingJamCharacter::OnResetVR()
