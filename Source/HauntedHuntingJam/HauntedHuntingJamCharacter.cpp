@@ -257,9 +257,11 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 	FRotator const rotation = GetControlRotation();
 
 	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
-	FVector end = start + dir * RaycastDistance;
+	FVector end = start + dir * raycast_distance;
 
-	DrawDebugLine(world, start, end, FColor::Red, false, 2.0f);
+	if (show_raycast_debug) {
+		DrawDebugLine(world, start, end, FColor::Red, false, 2.0f);
+	}
 
 
 	if (world->LineTraceSingleByChannel(hit_result, start, end, ECollisionChannel::ECC_WorldStatic,

@@ -109,7 +109,10 @@ public:
 
 	/** How Far to Raycast when in Use() mode */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	float RaycastDistance = 100.0f;
+	float raycast_distance = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	bool show_raycast_debug = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between axe swings"))
 	float wood_harvest_rate = 1.0f;
