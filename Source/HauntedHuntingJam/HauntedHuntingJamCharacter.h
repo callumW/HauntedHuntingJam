@@ -125,9 +125,9 @@ protected:
 	/** Fires a projectile. */
 	void OnFire();
 
-	void OnFire(float delta_seconds);
-
 	void StopFire();
+
+	void FireLogic();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
