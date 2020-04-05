@@ -159,6 +159,7 @@ void AHauntedHuntingJamCharacter::SwitchWeapon()
 
 	UE_LOG(LogTemp, Display, TEXT("Switch Weapon!"));
 	weapon_mode++;
+	time_since_last_fire = 9999.0f;		//reset last fire time;
 
 	switch (weapon_mode) {
 		case WEAPON_MODE::GUN:
@@ -443,10 +444,7 @@ void AHauntedHuntingJamCharacter::Tick(float delta_seconds)
 
 void AHauntedHuntingJamCharacter::OnFire(float delta_seconds)
 {
-	if (delta_seconds < 0) {	// Initial fire call
-		time_since_last_fire = 9999999.0f;
-	}
-	else {
+	if (delta_seconds > 0.0f) {
 		time_since_last_fire += delta_seconds;
 	}
 
