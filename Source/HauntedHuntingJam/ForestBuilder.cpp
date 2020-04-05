@@ -2,7 +2,8 @@
 
 #include "ForestBuilder.h"
 
-#include <array>
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AForestBuilder::AForestBuilder()
@@ -88,6 +89,11 @@ bool AForestBuilder::HitTree(UTreeComponent* tree)
 
 	size_t i = trees.Find(tree);
 	if (i != INDEX_NONE) {
+		if (wood_hit_sound) {
+			UGameplayStatics::PlaySoundAtLocation(this, wood_hit_sound,
+				tree->GetComponentLocation());
+		}
+
 		if (tree->OnHit()) {
 			trees.RemoveAt(i);
 			tree->DestroyComponent();

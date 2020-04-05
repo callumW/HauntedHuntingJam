@@ -6,6 +6,7 @@
 #include "TreeGenerationBlockingVolume.h"
 #include "TreeComponent.h"
 
+#include "Sound/SoundBase.h"
 #include "Containers/Array.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -44,6 +45,9 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	UPROPERTY(EditAnywhere, Category = "Gameplay")
 	bool spawn_in_editor = false;
+
+	UPROPERTY(EditAnywhere, Category="Gameplay")
+	class USoundBase* wood_hit_sound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Generation")
 	FVector size = FVector(DEFAULT_SPAWN_AREA_DIM, DEFAULT_SPAWN_AREA_DIM, 1.0f);
