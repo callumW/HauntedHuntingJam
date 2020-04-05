@@ -16,7 +16,14 @@ bool UTreeComponent::Initialize(TCHAR const* mesh_path)
     return false;
 }
 
-void UTreeComponent::OnHit()
+bool UTreeComponent::OnHit()
 {
-    SetVisibility(false);
+    --life_points;
+    UE_LOG(LogTemp, Display, TEXT("HitTree, %u life left!"), life_points);
+    if (life_points <= 0) {
+        return true;
+    }
+    else {
+        return false;
+    }
 }

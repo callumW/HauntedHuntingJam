@@ -80,14 +80,21 @@ void AForestBuilder::DeleteAllTrees()
 	}
 }
 
-void AForestBuilder::DestroyTree(UTreeComponent* tree)
+bool AForestBuilder::HitTree(UTreeComponent* tree)
 {
-	if (trees.Remove(tree) > 0) {
-		tree->DestroyComponent();
+	if (tree == nullptr) {
+		return false;
 	}
-	else {
-		UE_LOG(LogTemp, Display, TEXT("Failed to remove tree"));
+
+	size_t i = trees.Find(tree);
+	if (i != INDEX_NONE) {
+		if (tree->OnHit()) {
+			trees.RemoveAt(i);
+			tree->DestroyComponent();
+			return true;
+		}
 	}
+	return false;
 }
 
 // Called when the game starts or when spawned

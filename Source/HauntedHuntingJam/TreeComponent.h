@@ -14,8 +14,10 @@ class HAUNTEDHUNTINGJAM_API UTreeComponent : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
+	unsigned life_points = 5;
+
 public:
 	bool Initialize(TCHAR const* mesh_path);
 
-	void OnHit();
+	bool OnHit();
 };
