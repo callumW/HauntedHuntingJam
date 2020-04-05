@@ -22,6 +22,18 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // AHauntedHuntingJamCharacter
 
+WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i)
+{
+	switch (cur_mode) {
+		case WEAPON_MODE::GUN:
+			return cur_mode = WEAPON_MODE::HANDS;
+		case WEAPON_MODE::HANDS:
+			return cur_mode = WEAPON_MODE::GUN;
+		default:
+			return cur_mode = WEAPON_MODE::GUN;
+	}
+}
+
 AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
