@@ -18,10 +18,6 @@ void AHauntedHuntingJamHUD::DrawWoodCount()
 {
 	FString text{TEXT("Wood Count:")};
 	text.Appendf(TEXT(" %u"), wood_count);
-	// FVector2D text_loc{Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f};
-	// FCanvasTextItem wood_count_text{text_loc, FText::FromString(text), nullptr, FLinearColor::Red};
-	//
-	// Canvas->DrawItem(wood_count_text);
 
 	DrawText(text, FLinearColor::Red, Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, nullptr, 1.0f, false);
 
