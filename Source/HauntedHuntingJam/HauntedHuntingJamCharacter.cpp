@@ -326,7 +326,7 @@ void AHauntedHuntingJamCharacter::Use()
 void AHauntedHuntingJamCharacter::OnFire()
 {
 	is_firing = true;
-	OnFire(-1);		// -1 signifies that this is our first OnFire() call
+	FireLogic();
 }
 
 void AHauntedHuntingJamCharacter::OnResetVR()
@@ -450,17 +450,14 @@ void AHauntedHuntingJamCharacter::StopFire()
 
 void AHauntedHuntingJamCharacter::Tick(float delta_seconds)
 {
+	time_since_last_fire += delta_seconds;
 	if (is_firing) {
-		OnFire(delta_seconds);
+		FireLogic();
 	}
 }
 
-void AHauntedHuntingJamCharacter::OnFire(float delta_seconds)
+void AHauntedHuntingJamCharacter::FireLogic()
 {
-	if (delta_seconds > 0.0f) {
-		time_since_last_fire += delta_seconds;
-	}
-
 	switch (weapon_mode) {
 		case WEAPON_MODE::GUN:
 			ShootGun();
