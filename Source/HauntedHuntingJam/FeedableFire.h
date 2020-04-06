@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "Particles/ParticleSystemComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "FeedableFire.generated.h"
@@ -14,7 +13,10 @@ private:
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-	UParticleSystemComponent* fire_particle_system;
+	class UParticleSystemComponent* fire_particle_system;
+
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* container_mesh;
 
 public:
 	// Sets default values for this actor's properties
