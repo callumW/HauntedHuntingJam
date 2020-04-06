@@ -26,7 +26,6 @@ void AFeedableFire::BeginPlay()
 void AFeedableFire::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 int32 AFeedableFire::Feed(int32 wood_count)

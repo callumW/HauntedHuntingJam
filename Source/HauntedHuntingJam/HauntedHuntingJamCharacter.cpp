@@ -16,6 +16,7 @@
 #include "ForestBuilder.h"
 #include "DrawDebugHelpers.h"
 #include "HauntedHuntingJamHUD.h"
+#include "FeedableFire.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -299,7 +300,13 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 
 			if (tree && forest) {
 				AttackTree(forest, tree);
+				return;
 			}	// Else not something we can interact with.
+
+			AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
+			if (fire) {
+				UE_LOG(LogTemp, Display, TEXT("hit fire"));
+			}
 		}
 	}
 }
