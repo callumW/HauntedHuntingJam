@@ -3,6 +3,8 @@
 
 #include "FeedableFire.h"
 
+#include "HauntedHuntingJamHUD.h"
+
 // Sets default values
 AFeedableFire::AFeedableFire()
 {
@@ -46,6 +48,22 @@ void AFeedableFire::Tick(float DeltaTime)
 			new_scale.Z);
 
 		fire_particle_system->SetRelativeScale3D(new_scale);
+		UpdateHUD();
+	}
+}
+
+void AFeedableFire::UpdateHUD()
+{
+	auto world = GetWorld();
+
+	if (world) {
+		auto player_controller = world->GetFirstPlayerController();
+		if (player_controller) {
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+			HUD->UpdateFireLevel(fuel_count / max_fuel_count);
+		}
 	}
 }
 
