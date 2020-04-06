@@ -14,6 +14,8 @@ class HAUNTEDHUNTINGJAM_API AFeedableFire : public AActor
 private:
 	GENERATED_BODY()
 
+	FVector starting_fire_scale;
+
 public:
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* fire_particle_system = nullptr;
@@ -21,7 +23,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* container_mesh = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Gameplay")
+	UPROPERTY(EditAnywhere, Category="Gameplay", meta=(ToolTip="Fuel usage in fuel/sec"))
 	float fuel_burn_rate = 1.0f;
 
 	UPROPERTY(EditAnywhere)
