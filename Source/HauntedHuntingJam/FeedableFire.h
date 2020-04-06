@@ -16,6 +16,8 @@ private:
 
 	FVector starting_fire_scale;
 
+	void UpdateHUD();
+
 public:
 	UPROPERTY(EditAnywhere)
 	UParticleSystemComponent* fire_particle_system = nullptr;
