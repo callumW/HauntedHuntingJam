@@ -30,15 +30,21 @@ void AFeedableFire::Tick(float DeltaTime)
 
 int32 AFeedableFire::Feed(int32 wood_count)
 {
+	UE_LOG(LogTemp, Display, TEXT("Feeding fire: cur_fuel: %f, max_fuel: %f, incoming_fuel: %d"),
+		fuel_count, max_fuel_count, wood_count);
 	float incoming_fuel = static_cast<float>(wood_count);
 
-	float used_fuel = max_fuel_count - fuel_count;
-	if (used_fuel >= 1.0f) { 	//Verify we can add a whole amount of fuel
+	float empty_fuel = max_fuel_count - fuel_count;
+	if (empty_fuel >= 1.0f) { 	//Verify we can add a whole amount of fuel
 		// Calculate used amount of fuel
-		used_fuel = FMath::RoundToZero(used_fuel);
-		fuel_count += used_fuel;
+		empty_fuel = FMath::RoundToZero(empty_fuel);
+		if (incoming_fuel > empty_fuel) {
+			incoming_fuel = empty_fuel;
+		}
 
-		return static_cast<int32>(used_fuel);
+		fuel_count += incoming_fuel;
+
+		return static_cast<int32>(incoming_fuel);
 	}
 	return 0;
 }
