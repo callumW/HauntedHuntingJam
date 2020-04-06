@@ -138,7 +138,8 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 			// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
 			trees.Add(tree_obj);
 			tree_obj->RegisterComponent();
-			tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			tree_obj->AttachToComponent(RootComponent,
+				FAttachmentTransformRules::KeepRelativeTransform);
 
 			tree_obj->SetRelativeLocation(loc, false);
 			tree_obj->AddLocalRotation(rot, false);
