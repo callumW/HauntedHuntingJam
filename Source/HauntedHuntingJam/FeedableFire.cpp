@@ -20,12 +20,33 @@ AFeedableFire::AFeedableFire()
 void AFeedableFire::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (fire_particle_system) {
+		starting_fire_scale = fire_particle_system->GetRelativeScale3D();
+	}
 }
 
 // Called every frame
 void AFeedableFire::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	fuel_count -= fuel_burn_rate * DeltaTime;
+
+	if (fuel_count < 0.0f) {
+		fuel_count = 0.0f;
+	}
+
+	// Shrink fire
+	if (fire_particle_system) {
+		float new_scale_scalar = fuel_count / max_fuel_count;
+		FVector new_scale = starting_fire_scale * new_scale_scalar;
+
+		UE_LOG(LogTemp, Display, TEXT("scaling fire to: %f,%f,%f"), new_scale.X, new_scale.Y,
+			new_scale.Z);
+
+		fire_particle_system->SetRelativeScale3D(new_scale);
+	}
 }
 
 int32 AFeedableFire::Feed(int32 wood_count)
