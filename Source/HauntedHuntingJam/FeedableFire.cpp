@@ -99,7 +99,9 @@ int32 AFeedableFire::Feed(int32 wood_count)
 			incoming_fuel = empty_fuel;
 		}
 
-		PlayFeedSound();
+		if (incoming_fuel > 0.0f) {
+			PlayFeedSound();
+		}
 
 		fuel_count += incoming_fuel;
 
