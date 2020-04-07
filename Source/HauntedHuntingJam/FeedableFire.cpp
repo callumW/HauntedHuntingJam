@@ -30,12 +30,21 @@ void AFeedableFire::BeginPlay()
 	}
 
 	if (ambient_sound) {
-		UE_LOG(LogTemp, Display, TEXT("Adding attentuation properties"));
+
+		audio_component = NewObject<UAudioComponent>(this, UAudioComponent::StaticClass());
+
+		audio_component->RegisterComponent();
+		audio_component->AttachToComponent(RootComponent,
+			FAttachmentTransformRules::KeepRelativeTransform);
+
 		auto attenuation_properties = NewObject<USoundAttenuation>(this,
 			USoundAttenuation::StaticClass());
 
 		ambient_sound->AttenuationSettings = attenuation_properties;
-		UGameplayStatics::PlaySoundAtLocation(this, ambient_sound, GetActorLocation());
+
+		audio_component->SetSound(ambient_sound);
+
+		audio_component->Play(0.0f);
 	}
 }
 

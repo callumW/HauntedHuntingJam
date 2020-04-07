@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -18,6 +19,8 @@ private:
 	FVector starting_fire_scale;
 
 	void UpdateHUD();
+
+	UAudioComponent* audio_component;
 
 public:
 	UPROPERTY(EditAnywhere)
