@@ -28,24 +28,6 @@ void AFeedableFire::BeginPlay()
 	if (fire_particle_system) {
 		starting_fire_scale = fire_particle_system->GetRelativeScale3D();
 	}
-
-	if (ambient_sound) {
-
-		audio_component = NewObject<UAudioComponent>(this, UAudioComponent::StaticClass());
-
-		audio_component->RegisterComponent();
-		audio_component->AttachToComponent(RootComponent,
-			FAttachmentTransformRules::KeepRelativeTransform);
-
-		auto attenuation_properties = NewObject<USoundAttenuation>(this,
-			USoundAttenuation::StaticClass());
-
-		ambient_sound->AttenuationSettings = attenuation_properties;
-
-		audio_component->SetSound(ambient_sound);
-
-		audio_component->Play(0.0f);
-	}
 }
 
 // Called every frame

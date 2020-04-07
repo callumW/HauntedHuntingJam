@@ -20,7 +20,6 @@ private:
 
 	void UpdateHUD();
 
-	UAudioComponent* audio_component;
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -28,9 +27,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* container_mesh = nullptr;
-
-	UPROPERTY(EditAnywhere)
-	USoundBase* ambient_sound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="Gameplay", meta=(ToolTip="Fuel usage in fuel/sec"))
 	float fuel_burn_rate = 1.0f;
