@@ -4,6 +4,8 @@
 #include "FeedableFire.h"
 
 #include "HauntedHuntingJamHUD.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundAttenuation.h"
 
 // Sets default values
 AFeedableFire::AFeedableFire()
@@ -25,6 +27,15 @@ void AFeedableFire::BeginPlay()
 
 	if (fire_particle_system) {
 		starting_fire_scale = fire_particle_system->GetRelativeScale3D();
+	}
+
+	if (ambient_sound) {
+		UE_LOG(LogTemp, Display, TEXT("Adding attentuation properties"));
+		auto attenuation_properties = NewObject<USoundAttenuation>(this,
+			USoundAttenuation::StaticClass());
+
+		ambient_sound->AttenuationSettings = attenuation_properties;
+		UGameplayStatics::PlaySoundAtLocation(this, ambient_sound, GetActorLocation());
 	}
 }
 
