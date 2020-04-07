@@ -99,9 +99,18 @@ int32 AFeedableFire::Feed(int32 wood_count)
 			incoming_fuel = empty_fuel;
 		}
 
+		PlayFeedSound();
+
 		fuel_count += incoming_fuel;
 
 		return static_cast<int32>(incoming_fuel);
 	}
 	return 0;
+}
+
+void AFeedableFire::PlayFeedSound()
+{
+	if (use_sound) {
+		UGameplayStatics::PlaySoundAtLocation(this, use_sound, GetActorLocation());
+	}
 }
