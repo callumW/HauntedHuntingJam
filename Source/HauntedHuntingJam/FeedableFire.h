@@ -18,6 +18,8 @@ private:
 
 	FVector starting_fire_scale;
 
+	UAudioComponent* audio_comp;
+
 	void UpdateHUD();
 
 

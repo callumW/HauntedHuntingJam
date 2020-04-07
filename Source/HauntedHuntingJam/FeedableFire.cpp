@@ -28,6 +28,15 @@ void AFeedableFire::BeginPlay()
 	if (fire_particle_system) {
 		starting_fire_scale = fire_particle_system->GetRelativeScale3D();
 	}
+
+	auto children = RootComponent->GetAttachChildren();
+
+	for (auto child : children) {
+		audio_comp = dynamic_cast<UAudioComponent*>(child);
+		if (audio_comp) {
+			break;
+		}
+	}
 }
 
 // Called every frame
@@ -41,16 +50,23 @@ void AFeedableFire::Tick(float DeltaTime)
 		fuel_count = 0.0f;
 	}
 
+	UpdateHUD();
+
+	float new_scale_scalar = fuel_count / max_fuel_count;
 	// Shrink fire
 	if (fire_particle_system) {
-		float new_scale_scalar = fuel_count / max_fuel_count;
 		FVector new_scale = starting_fire_scale * new_scale_scalar;
 
 		UE_LOG(LogTemp, Display, TEXT("scaling fire to: %f,%f,%f"), new_scale.X, new_scale.Y,
 			new_scale.Z);
 
 		fire_particle_system->SetRelativeScale3D(new_scale);
-		UpdateHUD();
+	}
+
+	if (audio_comp) {
+		UE_LOG(LogTemp, Display, TEXT("New audio volume scalar: %f"), new_scale_scalar);
+
+		audio_comp->SetVolumeMultiplier(new_scale_scalar);
 	}
 }
 
