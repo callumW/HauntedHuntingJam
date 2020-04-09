@@ -18,13 +18,17 @@ public:
 	virtual void DrawHUD() override;
 
 	void UpdateWoodCount(uint32 new_wood_count);
+	void UpdateFireLevel(float level);
 private:
 
 	void DrawWoodCount();
+	void DrawFireLevel();
 
 	/** Crosshair asset pointer */
 	class UTexture2D* CrosshairTex;
 
 	uint32 wood_count = 0;
+
+	float fire_level = 1.0f;
 
 };

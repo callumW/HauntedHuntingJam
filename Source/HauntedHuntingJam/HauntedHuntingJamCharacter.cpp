@@ -16,6 +16,7 @@
 #include "ForestBuilder.h"
 #include "DrawDebugHelpers.h"
 #include "HauntedHuntingJamHUD.h"
+#include "FeedableFire.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -299,7 +300,15 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 
 			if (tree && forest) {
 				AttackTree(forest, tree);
+				return;
 			}	// Else not something we can interact with.
+
+			AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
+			if (fire) {
+				UE_LOG(LogTemp, Display, TEXT("hit fire"));
+				wood_count -= fire->Feed(wood_count);
+				UpdateHUD();
+			}
 		}
 	}
 }
@@ -313,22 +322,27 @@ void AHauntedHuntingJamCharacter::AttackTree(AForestBuilder* forest, UTreeCompon
 
 	if (forest->HitTree(tree)) {
 		wood_count++;
+		UpdateHUD();
+	}
+}
 
-		if (Controller) {
-			APlayerController* player_controller =
-				dynamic_cast<APlayerController*>(Controller);
-			if (player_controller) {
-				// Update HUD
-				AHauntedHuntingJamHUD* HUD =
-					dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+void AHauntedHuntingJamCharacter::UpdateHUD()
+{
+	if (Controller) {
+		APlayerController* player_controller =
+			dynamic_cast<APlayerController*>(Controller);
+		if (player_controller) {
+			// Update HUD
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
 
-				if (HUD) {
-					HUD->UpdateWoodCount(wood_count);
-				}
+			if (HUD) {
+				HUD->UpdateWoodCount(wood_count);
 			}
 		}
 	}
 }
+
 
 void AHauntedHuntingJamCharacter::Use()
 {
