@@ -277,7 +277,7 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 		now.
 	*/
 
-	FVector const start = GetPawnViewLocation();
+	FVector const start = FirstPersonCameraComponent->GetComponentLocation();
 	FRotator const rotation = GetControlRotation();
 
 	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
