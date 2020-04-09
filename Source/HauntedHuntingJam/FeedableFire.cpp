@@ -56,16 +56,10 @@ void AFeedableFire::Tick(float DeltaTime)
 	// Shrink fire
 	if (fire_particle_system) {
 		FVector new_scale = starting_fire_scale * new_scale_scalar;
-
-		UE_LOG(LogTemp, Display, TEXT("scaling fire to: %f,%f,%f"), new_scale.X, new_scale.Y,
-			new_scale.Z);
-
 		fire_particle_system->SetRelativeScale3D(new_scale);
 	}
 
 	if (audio_comp) {
-		UE_LOG(LogTemp, Display, TEXT("New audio volume scalar: %f"), new_scale_scalar);
-
 		audio_comp->SetVolumeMultiplier(new_scale_scalar);
 	}
 }
