@@ -155,6 +155,8 @@ protected:
 
 	void FindUsableObject();
 
+	void UpdateHUD();
+
 	struct TouchData
 	{
 		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}
