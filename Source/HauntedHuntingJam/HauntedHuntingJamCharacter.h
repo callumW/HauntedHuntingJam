@@ -4,6 +4,7 @@
 #include "ForestBuilder.h"
 #include "TreeComponent.h"
 
+#include "Components/SpotLightComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "HauntedHuntingJamCharacter.generated.h"
