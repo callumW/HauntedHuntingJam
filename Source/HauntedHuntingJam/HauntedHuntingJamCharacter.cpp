@@ -122,6 +122,8 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 		VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
+
+	GetFlashlight();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,6 +144,9 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 
 	// Bind weapon switch event
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AHauntedHuntingJamCharacter::SwitchWeapon);
+
+	// Toggle Flashlight
+	PlayerInputComponent->BindAction("ToggleFlashlight", IE_Pressed, this, &AHauntedHuntingJamCharacter::ToggleFlashlight);
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -493,5 +498,33 @@ void AHauntedHuntingJamCharacter::FireLogic()
 			break;
 		default:
 			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
+	}
+}
+
+void AHauntedHuntingJamCharacter::GetFlashlight()
+{
+	TArray<USceneComponent*> children;
+
+	RootComponent->GetChildrenComponents(true, children);
+
+	FString flashlight_name = "flashlight";
+
+	for (auto child : children) {
+		if (child->GetFName().ToString() == flashlight_name) {
+			UE_LOG(LogTemp, Display, TEXT("Found flashlight"));
+
+			USpotLightComponent* tmp = dynamic_cast<USpotLightComponent*>(child);
+
+			if (tmp) {
+				flashlight = tmp;
+			}
+		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::ToggleFlashlight()
+{
+	if (flashlight) {
+		flashlight->ToggleVisibility();
 	}
 }

@@ -23,6 +23,10 @@ class AHauntedHuntingJamCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	void GetFlashlight();
+
+	void ToggleFlashlight();
+
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	class USkeletalMeshComponent* Mesh1P;
@@ -58,6 +62,8 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	WEAPON_MODE weapon_mode = WEAPON_MODE::GUN;
 
 	uint32 wood_count = 0;
+
+	USpotLightComponent* flashlight = nullptr;
 
 public:
 	AHauntedHuntingJamCharacter();
