@@ -29,6 +29,8 @@ WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i)
 		case WEAPON_MODE::GUN:
 			return cur_mode = WEAPON_MODE::HANDS;
 		case WEAPON_MODE::HANDS:
+			return cur_mode = WEAPON_MODE::FLASHLIGHT;
+		case WEAPON_MODE::FLASHLIGHT:
 			return cur_mode = WEAPON_MODE::GUN;
 		default:
 			return cur_mode = WEAPON_MODE::GUN;
@@ -124,6 +126,8 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 	}
 
 	GetFlashlight();
+
+	UpdateWeaponMode();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -186,6 +190,9 @@ void AHauntedHuntingJamCharacter::SwitchWeapon()
 		case WEAPON_MODE::HANDS:
 			UE_LOG(LogTemp, Display, TEXT("Hands"));
 			break;
+		case WEAPON_MODE::FLASHLIGHT:
+			UE_LOG(LogTemp, Display, TEXT("Flashlight"));
+			break;
 		default:
 			UE_LOG(LogTemp, Display, TEXT("Unknown mode"));
 	}
@@ -198,6 +205,8 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 	switch (weapon_mode) {
 		case WEAPON_MODE::GUN:
 		{
+			flashlight_mesh->SetVisibility(false);
+			flashlight->SetVisibility(false);
 			Mesh1P->SetVisibility(true);
 			FP_Gun->SetVisibility(true);
 			break;
@@ -206,6 +215,14 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 		{
 			Mesh1P->SetVisibility(false);
 			FP_Gun->SetVisibility(false);
+			break;
+		}
+		case WEAPON_MODE::FLASHLIGHT:
+		{
+			Mesh1P->SetVisibility(false);
+			FP_Gun->SetVisibility(false);
+			flashlight_mesh->SetVisibility(true);
+			flashlight->SetVisibility(true);
 			break;
 		}
 	}
@@ -507,7 +524,8 @@ void AHauntedHuntingJamCharacter::GetFlashlight()
 
 	RootComponent->GetChildrenComponents(true, children);
 
-	FString flashlight_name = "flashlight";
+	FString const flashlight_name = "flashlight";
+	FString const flashlight_mesh_name = "flashlight_mesh";
 
 	for (auto child : children) {
 		if (child->GetFName().ToString() == flashlight_name) {
@@ -519,12 +537,22 @@ void AHauntedHuntingJamCharacter::GetFlashlight()
 				flashlight = tmp;
 			}
 		}
+		else if (child->GetFName().ToString() == flashlight_mesh_name) {
+
+			UStaticMeshComponent* tmp = dynamic_cast<UStaticMeshComponent*>(child);
+
+			if (tmp) {
+				flashlight_mesh = tmp;
+			}
+		}
 	}
+
+	check(flashlight != nullptr && flashlight_mesh != nullptr);
 }
 
 void AHauntedHuntingJamCharacter::ToggleFlashlight()
 {
-	if (flashlight) {
+	if (flashlight && weapon_mode == WEAPON_MODE::FLASHLIGHT) {
 		flashlight->ToggleVisibility();
 	}
 }
