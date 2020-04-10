@@ -209,6 +209,10 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 			flashlight->SetVisibility(false);
 			Mesh1P->SetVisibility(true);
 			FP_Gun->SetVisibility(true);
+			if (flashlight_off_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
+					GetActorLocation());
+			}
 			break;
 		}
 		case WEAPON_MODE::HANDS:
@@ -223,6 +227,10 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 			FP_Gun->SetVisibility(false);
 			flashlight_mesh->SetVisibility(true);
 			flashlight->SetVisibility(true);
+			if (flashlight_on_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_on_sound,
+					GetActorLocation());
+			}
 			break;
 		}
 	}
@@ -554,5 +562,17 @@ void AHauntedHuntingJamCharacter::ToggleFlashlight()
 {
 	if (flashlight && weapon_mode == WEAPON_MODE::FLASHLIGHT) {
 		flashlight->ToggleVisibility();
+		if (flashlight->IsVisible()) {
+			if (flashlight_on_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_on_sound,
+					GetActorLocation());
+			}
+		}
+		else {
+			if (flashlight_off_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
+					GetActorLocation());
+			}
+		}
 	}
 }
