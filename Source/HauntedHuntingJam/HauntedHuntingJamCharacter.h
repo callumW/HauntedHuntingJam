@@ -1,12 +1,21 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
+#include "ForestBuilder.h"
+#include "TreeComponent.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "HauntedHuntingJamCharacter.generated.h"
 
 class UInputComponent;
+
+enum class WEAPON_MODE {
+	GUN,
+	HANDS
+};
+
+WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i);
 
 UCLASS(config=Game)
 class AHauntedHuntingJamCharacter : public ACharacter
@@ -45,13 +54,15 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UMotionControllerComponent* L_MotionController;
 
+	WEAPON_MODE weapon_mode = WEAPON_MODE::GUN;
+
+	uint32 wood_count = 0;
+
 public:
 	AHauntedHuntingJamCharacter();
 
-protected:
-	virtual void BeginPlay();
+	virtual void Tick(float delta_seconds) override;
 
-public:
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -80,10 +91,33 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	uint32 bUsingMotionControllers : 1;
 
+	/** How Far to Raycast when in Use() mode */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	float raycast_distance = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	bool show_raycast_debug = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between axe swings"))
+	float wood_harvest_rate = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between firing shots"))
+	float gun_fire_rate = 0.5f;
+
+	/** Returns Mesh1P subobject **/
+	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	/** Returns FirstPersonCameraComponent subobject **/
+	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
 protected:
+	virtual void BeginPlay();
 
 	/** Fires a projectile. */
 	void OnFire();
+
+	void StopFire();
+
+	void FireLogic();
 
 	/** Resets HMD orientation and position in VR. */
 	void OnResetVR();
@@ -106,6 +140,23 @@ protected:
 	 */
 	void LookUpAtRate(float Rate);
 
+	/**
+	 * Called via input to switch the weapon
+	 */
+	void SwitchWeapon();
+
+	void UpdateWeaponMode();
+
+	void ShootGun();
+
+	void AttackTree(AForestBuilder* forest, UTreeComponent* tree);
+
+	void Use();
+
+	void FindUsableObject();
+
+	void UpdateHUD();
+
 	struct TouchData
 	{
 		TouchData() { bIsPressed = false;Location=FVector::ZeroVector;}
@@ -119,7 +170,9 @@ protected:
 	void TouchUpdate(const ETouchIndex::Type FingerIndex, const FVector Location);
 	TouchData	TouchItem;
 
-protected:
+	bool is_firing = false;
+	float time_since_last_fire = 0;
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
@@ -131,11 +184,5 @@ protected:
 	 * @returns true if touch controls were enabled.
 	 */
 	bool EnableTouchscreenMovement(UInputComponent* InputComponent);
-
-public:
-	/** Returns Mesh1P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	/** Returns FirstPersonCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 };

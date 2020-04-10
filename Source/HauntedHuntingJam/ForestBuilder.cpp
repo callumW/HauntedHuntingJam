@@ -2,7 +2,8 @@
 
 #include "ForestBuilder.h"
 
-#include <array>
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 AForestBuilder::AForestBuilder()
@@ -80,6 +81,28 @@ void AForestBuilder::DeleteAllTrees()
 	}
 }
 
+bool AForestBuilder::HitTree(UTreeComponent* tree)
+{
+	if (tree == nullptr) {
+		return false;
+	}
+
+	size_t i = trees.Find(tree);
+	if (i != INDEX_NONE) {
+		if (wood_hit_sound) {
+			UGameplayStatics::PlaySoundAtLocation(this, wood_hit_sound,
+				tree->GetComponentLocation());
+		}
+
+		if (tree->OnHit()) {
+			trees.RemoveAt(i);
+			tree->DestroyComponent();
+			return true;
+		}
+	}
+	return false;
+}
+
 // Called when the game starts or when spawned
 void AForestBuilder::BeginPlay()
 {
@@ -106,30 +129,23 @@ void AForestBuilder::SpawnTreeAt(tree_t const& tree)
 
 		check(mesh_path != nullptr);
 
-		auto tree_obj = NewObject<UStaticMeshComponent>(this, UStaticMeshComponent::StaticClass());
+		auto tree_obj = NewObject<UTreeComponent>(this, UTreeComponent::StaticClass());
 
 		if (tree_obj) {
 
-			UStaticMesh* mesh = (UStaticMesh*) StaticLoadObject(UStaticMesh::StaticClass(), nullptr,
-				mesh_path);
+			tree_obj->Initialize(mesh_path);
 
-			if (mesh) {
-				tree_obj->SetStaticMesh(mesh);
+			// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
+			trees.Add(tree_obj);
+			tree_obj->RegisterComponent();
+			tree_obj->AttachToComponent(RootComponent,
+				FAttachmentTransformRules::KeepRelativeTransform);
 
-				// UE_LOG(LogTemp, Display, TEXT("SpawN TREE! @ (%f,%f,%f)"), loc.X, loc.Y, loc.Z);
-				trees.Add(tree_obj);
-				tree_obj->RegisterComponent();
-				tree_obj->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+			tree_obj->SetRelativeLocation(loc, false);
+			tree_obj->AddLocalRotation(rot, false);
 
-				tree_obj->SetRelativeLocation(loc, false);
-				tree_obj->AddLocalRotation(rot, false);
-
-				tree_obj->LDMaxDrawDistance = render_distance;
-				tree_obj->SetCachedMaxDrawDistance(render_distance);
-			}
-			else {
-				UE_LOG(LogTemp, Warning, TEXT("Failed to create mesh!"));
-			}
+			tree_obj->LDMaxDrawDistance = render_distance;
+			tree_obj->SetCachedMaxDrawDistance(render_distance);
 		}
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("Failed to create tree!"));

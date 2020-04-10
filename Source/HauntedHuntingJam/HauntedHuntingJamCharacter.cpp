@@ -11,14 +11,33 @@
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
 #include "XRMotionControllerBase.h" // for FXRMotionControllerBase::RightHandSourceId
+#include "Engine/EngineTypes.h"
+#include "TreeComponent.h"
+#include "ForestBuilder.h"
+#include "DrawDebugHelpers.h"
+#include "HauntedHuntingJamHUD.h"
+#include "FeedableFire.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
 // AHauntedHuntingJamCharacter
 
+WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i)
+{
+	switch (cur_mode) {
+		case WEAPON_MODE::GUN:
+			return cur_mode = WEAPON_MODE::HANDS;
+		case WEAPON_MODE::HANDS:
+			return cur_mode = WEAPON_MODE::GUN;
+		default:
+			return cur_mode = WEAPON_MODE::GUN;
+	}
+}
+
 AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 
@@ -26,7 +45,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
-	// Create a CameraComponent	
+	// Create a CameraComponent
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-39.56f, 1.75f, 64.f)); // Position the camera
@@ -56,7 +75,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
 
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
+	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
 
 	// Create VR Controllers.
@@ -86,7 +105,7 @@ AHauntedHuntingJamCharacter::AHauntedHuntingJamCharacter()
 
 void AHauntedHuntingJamCharacter::BeginPlay()
 {
-	// Call the base class  
+	// Call the base class
 	Super::BeginPlay();
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
@@ -119,6 +138,10 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 
 	// Bind fire event
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AHauntedHuntingJamCharacter::OnFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AHauntedHuntingJamCharacter::StopFire);
+
+	// Bind weapon switch event
+	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AHauntedHuntingJamCharacter::SwitchWeapon);
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -138,8 +161,58 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AHauntedHuntingJamCharacter::LookUpAtRate);
 }
 
-void AHauntedHuntingJamCharacter::OnFire()
+/**
+ * Called via input to switch the weapon
+ */
+void AHauntedHuntingJamCharacter::SwitchWeapon()
 {
+	if (is_firing) {	// Can't switch weapon whilst firing
+		return;
+	}
+
+	UE_LOG(LogTemp, Display, TEXT("Switch Weapon!"));
+	weapon_mode++;
+	time_since_last_fire = 9999.0f;		//reset last fire time;
+
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+			UE_LOG(LogTemp, Display, TEXT("Gun"));
+			break;
+		case WEAPON_MODE::HANDS:
+			UE_LOG(LogTemp, Display, TEXT("Hands"));
+			break;
+		default:
+			UE_LOG(LogTemp, Display, TEXT("Unknown mode"));
+	}
+
+	UpdateWeaponMode();
+}
+
+void AHauntedHuntingJamCharacter::UpdateWeaponMode()
+{
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+		{
+			Mesh1P->SetVisibility(true);
+			FP_Gun->SetVisibility(true);
+			break;
+		}
+		case WEAPON_MODE::HANDS:
+		{
+			Mesh1P->SetVisibility(false);
+			FP_Gun->SetVisibility(false);
+			break;
+		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::ShootGun()
+{
+	if (time_since_last_fire < gun_fire_rate) {
+		return;
+	}
+	time_since_last_fire = 0;
+
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
@@ -184,6 +257,102 @@ void AHauntedHuntingJamCharacter::OnFire()
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
+}
+
+void AHauntedHuntingJamCharacter::FindUsableObject()
+{
+	auto world = GetWorld();
+
+	FHitResult hit_result{EForceInit::ForceInit};
+	FCollisionQueryParams query_params{TEXT("use_raytrace"), true, this};
+
+	/*
+		Right now we get the characters eye level and extend in the direction of the camera to get
+		the end location of our raycast. This isn't quite dead-on for the cursor but it will do for
+		now.
+	*/
+
+	FVector const start = GetPawnViewLocation();
+	FRotator const rotation = GetControlRotation();
+
+	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
+	FVector end = start + dir * raycast_distance;
+
+	if (show_raycast_debug) {
+		DrawDebugLine(world, start, end, FColor::Red, false, 2.0f);
+	}
+
+
+	if (world->LineTraceSingleByChannel(hit_result, start, end, ECollisionChannel::ECC_WorldStatic,
+		query_params, FCollisionResponseParams::DefaultResponseParam)) {
+
+		auto actor = hit_result.GetActor();
+		auto hit_component = hit_result.GetComponent();
+
+		if (hit_component && actor) {
+			/*
+				Eventually we may want to add a 'UsableClass' base class or something to help us
+				decide what we have found when raycast, for now we can safely assume it is either
+				a tree, or something else which we can't interact with.
+			*/
+			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
+			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
+
+			if (tree && forest) {
+				AttackTree(forest, tree);
+				return;
+			}	// Else not something we can interact with.
+
+			AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
+			if (fire) {
+				UE_LOG(LogTemp, Display, TEXT("hit fire"));
+				wood_count -= fire->Feed(wood_count);
+				UpdateHUD();
+			}
+		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::AttackTree(AForestBuilder* forest, UTreeComponent* tree)
+{
+	if (time_since_last_fire < wood_harvest_rate) {
+		return;
+	}
+	time_since_last_fire = 0;
+
+	if (forest->HitTree(tree)) {
+		wood_count++;
+		UpdateHUD();
+	}
+}
+
+void AHauntedHuntingJamCharacter::UpdateHUD()
+{
+	if (Controller) {
+		APlayerController* player_controller =
+			dynamic_cast<APlayerController*>(Controller);
+		if (player_controller) {
+			// Update HUD
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+			if (HUD) {
+				HUD->UpdateWoodCount(wood_count);
+			}
+		}
+	}
+}
+
+
+void AHauntedHuntingJamCharacter::Use()
+{
+	FindUsableObject();
+}
+
+void AHauntedHuntingJamCharacter::OnFire()
+{
+	is_firing = true;
+	FireLogic();
 }
 
 void AHauntedHuntingJamCharacter::OnResetVR()
@@ -295,6 +464,34 @@ bool AHauntedHuntingJamCharacter::EnableTouchscreenMovement(class UInputComponen
 		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AHauntedHuntingJamCharacter::TouchUpdate);
 		return true;
 	}
-	
+
 	return false;
+}
+
+void AHauntedHuntingJamCharacter::StopFire()
+{
+	is_firing = false;
+	UE_LOG(LogTemp, Display, TEXT("Stop firing"));
+}
+
+void AHauntedHuntingJamCharacter::Tick(float delta_seconds)
+{
+	time_since_last_fire += delta_seconds;
+	if (is_firing) {
+		FireLogic();
+	}
+}
+
+void AHauntedHuntingJamCharacter::FireLogic()
+{
+	switch (weapon_mode) {
+		case WEAPON_MODE::GUN:
+			ShootGun();
+			break;
+		case WEAPON_MODE::HANDS:
+			Use();
+			break;
+		default:
+			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
+	}
 }

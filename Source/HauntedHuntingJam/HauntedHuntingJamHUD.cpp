@@ -14,6 +14,28 @@ AHauntedHuntingJamHUD::AHauntedHuntingJamHUD()
 	CrosshairTex = CrosshairTexObj.Object;
 }
 
+void AHauntedHuntingJamHUD::UpdateFireLevel(float level)
+{
+	fire_level = level;
+}
+
+void AHauntedHuntingJamHUD::DrawFireLevel()
+{
+	FString text{TEXT("Fire level:")};
+	text.Appendf(TEXT(" %f"), fire_level * 100.0f);
+
+	DrawText(text, FLinearColor::Red, Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f + 10.f,
+		nullptr, 1.0f, false);
+}
+
+void AHauntedHuntingJamHUD::DrawWoodCount()
+{
+	FString text{TEXT("Wood Count:")};
+	text.Appendf(TEXT(" %u"), wood_count);
+
+	DrawText(text, FLinearColor::Red, Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f, nullptr, 1.0f, false);
+
+}
 
 void AHauntedHuntingJamHUD::DrawHUD()
 {
@@ -32,4 +54,12 @@ void AHauntedHuntingJamHUD::DrawHUD()
 	FCanvasTileItem TileItem( CrosshairDrawPosition, CrosshairTex->Resource, FLinearColor::White);
 	TileItem.BlendMode = SE_BLEND_Translucent;
 	Canvas->DrawItem( TileItem );
+
+	DrawWoodCount();
+	DrawFireLevel();
+}
+
+void AHauntedHuntingJamHUD::UpdateWoodCount(uint32 new_wood_count)
+{
+	wood_count = new_wood_count;
 }
