@@ -209,7 +209,7 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 			flashlight->SetVisibility(false);
 			Mesh1P->SetVisibility(true);
 			FP_Gun->SetVisibility(true);
-			if (flashlight_off_sound) {
+			if (flashlight_off_sound && flashlight->IsVisible()) {
 				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
 					GetActorLocation());
 			}
