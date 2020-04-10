@@ -13,7 +13,8 @@ class UInputComponent;
 
 enum class WEAPON_MODE {
 	GUN,
-	HANDS
+	HANDS,
+	FLASHLIGHT
 };
 
 WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i);
@@ -64,6 +65,7 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	uint32 wood_count = 0;
 
 	USpotLightComponent* flashlight = nullptr;
+	UStaticMeshComponent* flashlight_mesh = nullptr;
 
 public:
 	AHauntedHuntingJamCharacter();
