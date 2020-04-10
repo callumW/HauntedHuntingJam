@@ -205,8 +205,10 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 	switch (weapon_mode) {
 		case WEAPON_MODE::GUN:
 		{
-			flashlight_mesh->SetVisibility(false);
-			flashlight->SetVisibility(false);
+			if (flashlight_mesh && flashlight) {
+				flashlight_mesh->SetVisibility(false);
+				flashlight->SetVisibility(false);
+			}
 			Mesh1P->SetVisibility(true);
 			FP_Gun->SetVisibility(true);
 			if (flashlight_off_sound && flashlight->IsVisible()) {
@@ -225,8 +227,10 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 		{
 			Mesh1P->SetVisibility(false);
 			FP_Gun->SetVisibility(false);
-			flashlight_mesh->SetVisibility(true);
-			flashlight->SetVisibility(true);
+			if (flashlight_mesh && flashlight) {
+				flashlight_mesh->SetVisibility(true);
+				flashlight->SetVisibility(true);
+			}
 			if (flashlight_on_sound) {
 				UGameplayStatics::PlaySoundAtLocation(this, flashlight_on_sound,
 					GetActorLocation());
@@ -554,13 +558,11 @@ void AHauntedHuntingJamCharacter::GetFlashlight()
 			}
 		}
 	}
-
-	check(flashlight != nullptr && flashlight_mesh != nullptr);
 }
 
 void AHauntedHuntingJamCharacter::ToggleFlashlight()
 {
-	if (flashlight && weapon_mode == WEAPON_MODE::FLASHLIGHT) {
+	if (flashlight && flashlight_mesh && weapon_mode == WEAPON_MODE::FLASHLIGHT) {
 		flashlight->ToggleVisibility();
 		if (flashlight->IsVisible()) {
 			if (flashlight_on_sound) {
