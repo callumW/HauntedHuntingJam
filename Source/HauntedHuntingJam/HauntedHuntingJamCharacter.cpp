@@ -29,6 +29,8 @@ WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i)
 		case WEAPON_MODE::GUN:
 			return cur_mode = WEAPON_MODE::HANDS;
 		case WEAPON_MODE::HANDS:
+			return cur_mode = WEAPON_MODE::FLASHLIGHT;
+		case WEAPON_MODE::FLASHLIGHT:
 			return cur_mode = WEAPON_MODE::GUN;
 		default:
 			return cur_mode = WEAPON_MODE::GUN;
@@ -122,6 +124,10 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 		VR_Gun->SetHiddenInGame(true, true);
 		Mesh1P->SetHiddenInGame(false, true);
 	}
+
+	GetFlashlight();
+
+	UpdateWeaponMode();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,6 +148,9 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 
 	// Bind weapon switch event
 	PlayerInputComponent->BindAction("SwitchWeapon", IE_Pressed, this, &AHauntedHuntingJamCharacter::SwitchWeapon);
+
+	// Toggle Flashlight
+	PlayerInputComponent->BindAction("ToggleFlashlight", IE_Pressed, this, &AHauntedHuntingJamCharacter::ToggleFlashlight);
 
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
@@ -181,6 +190,9 @@ void AHauntedHuntingJamCharacter::SwitchWeapon()
 		case WEAPON_MODE::HANDS:
 			UE_LOG(LogTemp, Display, TEXT("Hands"));
 			break;
+		case WEAPON_MODE::FLASHLIGHT:
+			UE_LOG(LogTemp, Display, TEXT("Flashlight"));
+			break;
 		default:
 			UE_LOG(LogTemp, Display, TEXT("Unknown mode"));
 	}
@@ -193,14 +205,36 @@ void AHauntedHuntingJamCharacter::UpdateWeaponMode()
 	switch (weapon_mode) {
 		case WEAPON_MODE::GUN:
 		{
+			if (flashlight_mesh && flashlight) {
+				flashlight_mesh->SetVisibility(false);
+				flashlight->SetVisibility(false);
+			}
 			Mesh1P->SetVisibility(true);
 			FP_Gun->SetVisibility(true);
+			if (flashlight_off_sound && flashlight->IsVisible()) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
+					GetActorLocation());
+			}
 			break;
 		}
 		case WEAPON_MODE::HANDS:
 		{
 			Mesh1P->SetVisibility(false);
 			FP_Gun->SetVisibility(false);
+			break;
+		}
+		case WEAPON_MODE::FLASHLIGHT:
+		{
+			Mesh1P->SetVisibility(false);
+			FP_Gun->SetVisibility(false);
+			if (flashlight_mesh && flashlight) {
+				flashlight_mesh->SetVisibility(true);
+				flashlight->SetVisibility(true);
+			}
+			if (flashlight_on_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_on_sound,
+					GetActorLocation());
+			}
 			break;
 		}
 	}
@@ -272,7 +306,7 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 		now.
 	*/
 
-	FVector const start = GetPawnViewLocation();
+	FVector const start = FirstPersonCameraComponent->GetComponentLocation();
 	FRotator const rotation = GetControlRotation();
 
 	FVector const dir = rotation.RotateVector(FVector::ForwardVector);
@@ -493,5 +527,54 @@ void AHauntedHuntingJamCharacter::FireLogic()
 			break;
 		default:
 			UE_LOG(LogTemp, Display, TEXT("Fire() when in unknown WEAPON_MODE"));
+	}
+}
+
+void AHauntedHuntingJamCharacter::GetFlashlight()
+{
+	TArray<USceneComponent*> children;
+
+	RootComponent->GetChildrenComponents(true, children);
+
+	FString const flashlight_name = "flashlight";
+	FString const flashlight_mesh_name = "flashlight_mesh";
+
+	for (auto child : children) {
+		if (child->GetFName().ToString() == flashlight_name) {
+			UE_LOG(LogTemp, Display, TEXT("Found flashlight"));
+
+			USpotLightComponent* tmp = dynamic_cast<USpotLightComponent*>(child);
+
+			if (tmp) {
+				flashlight = tmp;
+			}
+		}
+		else if (child->GetFName().ToString() == flashlight_mesh_name) {
+
+			UStaticMeshComponent* tmp = dynamic_cast<UStaticMeshComponent*>(child);
+
+			if (tmp) {
+				flashlight_mesh = tmp;
+			}
+		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::ToggleFlashlight()
+{
+	if (flashlight && flashlight_mesh && weapon_mode == WEAPON_MODE::FLASHLIGHT) {
+		flashlight->ToggleVisibility();
+		if (flashlight->IsVisible()) {
+			if (flashlight_on_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_on_sound,
+					GetActorLocation());
+			}
+		}
+		else {
+			if (flashlight_off_sound) {
+				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
+					GetActorLocation());
+			}
+		}
 	}
 }
