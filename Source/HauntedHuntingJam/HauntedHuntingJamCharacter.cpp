@@ -17,6 +17,7 @@
 #include "DrawDebugHelpers.h"
 #include "HauntedHuntingJamHUD.h"
 #include "FeedableFire.h"
+#include "Readable.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -338,6 +339,12 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 				if (fire) {
 					wood_count -= fire->Feed(wood_count);
 					UpdateHUD();
+				}
+			}
+			else if (actor->GetClass() == AReadable::StaticClass()) {
+				AReadable* sign = dynamic_cast<AReadable*>(actor);
+				if (sign) {
+					sign->Read();
 				}
 			}
 			else {
