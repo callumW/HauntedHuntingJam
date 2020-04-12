@@ -41,6 +41,10 @@ void AHauntedHuntingJamHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
+	if (draw_readable_mode) {
+		DrawReadableText();
+		return;
+	}
 	// Draw very simple crosshair
 
 	// find center of the Canvas
@@ -62,4 +66,15 @@ void AHauntedHuntingJamHUD::DrawHUD()
 void AHauntedHuntingJamHUD::UpdateWoodCount(uint32 new_wood_count)
 {
 	wood_count = new_wood_count;
+}
+
+void AHauntedHuntingJamHUD::DrawReadableText()
+{
+	DrawText(readable_text, FLinearColor::Red, 0.0f, 0.0f, nullptr, 1.0f, false);
+}
+
+void AHauntedHuntingJamHUD::DisplayText(FString const& text)
+{
+	draw_readable_mode = true;
+	readable_text = text;
 }

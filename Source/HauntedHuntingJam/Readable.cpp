@@ -3,6 +3,9 @@
 
 #include "Readable.h"
 
+#include "HauntedHuntingJamHUD.h"
+#include "HauntedHuntingJamCharacter.h"
+
 // Sets default values
 AReadable::AReadable()
 {
@@ -45,7 +48,6 @@ void AReadable::PostEditChangeProperty(FPropertyChangedEvent & prop_change_event
 void AReadable::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // Called every frame
@@ -58,4 +60,16 @@ void AReadable::Tick(float DeltaTime)
 void AReadable::Read()
 {
 	UE_LOG(LogTemp, Display, TEXT("Read!"));
+
+	auto world = GetWorld();
+
+	if (world) {
+		auto player_controller = world->GetFirstPlayerController();
+		if (player_controller) {
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+			HUD->DisplayText(readable_text);
+		}
+	}
 }

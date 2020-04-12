@@ -16,6 +16,9 @@ class HAUNTEDHUNTINGJAM_API AReadable : public AActor
 	UPROPERTY(EditAnywhere, Category="Appearance")
 	UStaticMesh* mesh = nullptr;
 
+	UPROPERTY(EditAnywhere, Category="Gameplay")
+	FString readable_text;
+
 
 	UPROPERTY()
 	UStaticMeshComponent* mesh_component = nullptr;

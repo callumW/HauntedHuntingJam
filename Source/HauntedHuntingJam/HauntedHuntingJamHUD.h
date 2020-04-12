@@ -19,10 +19,13 @@ public:
 
 	void UpdateWoodCount(uint32 new_wood_count);
 	void UpdateFireLevel(float level);
+
+	void DisplayText(FString const& text);
 private:
 
 	void DrawWoodCount();
 	void DrawFireLevel();
+	void DrawReadableText();
 
 	/** Crosshair asset pointer */
 	class UTexture2D* CrosshairTex;
@@ -30,5 +33,8 @@ private:
 	uint32 wood_count = 0;
 
 	float fire_level = 1.0f;
+
+	bool draw_readable_mode = false;
+	FString readable_text;
 
 };
