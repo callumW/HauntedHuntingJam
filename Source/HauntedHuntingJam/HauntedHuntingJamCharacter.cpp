@@ -324,24 +324,24 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 		auto hit_component = hit_result.GetComponent();
 
 		if (hit_component && actor) {
-			/*
-				Eventually we may want to add a 'UsableClass' base class or something to help us
-				decide what we have found when raycast, for now we can safely assume it is either
-				a tree, or something else which we can't interact with.
-			*/
-			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
-			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 
-			if (tree && forest) {
-				AttackTree(forest, tree);
-				return;
-			}	// Else not something we can interact with.
+			if (actor->GetClass() == AForestBuilder::StaticClass()) {
+				AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
+				UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 
-			AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
-			if (fire) {
-				UE_LOG(LogTemp, Display, TEXT("hit fire"));
-				wood_count -= fire->Feed(wood_count);
-				UpdateHUD();
+				if (tree && forest) {
+					AttackTree(forest, tree);
+				}
+			}
+			else if (actor->GetClass() == AFeedableFire::StaticClass()) {
+				AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
+				if (fire) {
+					wood_count -= fire->Feed(wood_count);
+					UpdateHUD();
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Display, TEXT("Actor is unknown type"));
 			}
 		}
 	}
