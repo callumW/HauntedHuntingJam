@@ -4,6 +4,7 @@
 #include "ForestBuilder.h"
 #include "TreeComponent.h"
 
+#include "Components/SpotLightComponent.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "HauntedHuntingJamCharacter.generated.h"
@@ -12,7 +13,8 @@ class UInputComponent;
 
 enum class WEAPON_MODE {
 	GUN,
-	HANDS
+	HANDS,
+	FLASHLIGHT
 };
 
 WEAPON_MODE& operator++(WEAPON_MODE& cur_mode, int i);
@@ -21,6 +23,10 @@ UCLASS(config=Game)
 class AHauntedHuntingJamCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+	void GetFlashlight();
+
+	void ToggleFlashlight();
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
@@ -57,6 +63,9 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	WEAPON_MODE weapon_mode = WEAPON_MODE::GUN;
 
 	uint32 wood_count = 0;
+
+	USpotLightComponent* flashlight = nullptr;
+	UStaticMeshComponent* flashlight_mesh = nullptr;
 
 public:
 	AHauntedHuntingJamCharacter();
@@ -103,6 +112,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta=(ToolTip="Seconds between firing shots"))
 	float gun_fire_rate = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+	class USoundBase* flashlight_on_sound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
+	class USoundBase* flashlight_off_sound;
 
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
