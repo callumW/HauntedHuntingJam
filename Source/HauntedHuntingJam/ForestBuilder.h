@@ -35,6 +35,7 @@ class HAUNTEDHUNTINGJAM_API AForestBuilder : public AActor
 
 	void DeleteAllTrees();
 
+	UPROPERTY()
 	TArray<USceneComponent*> trees;
 
 	UPROPERTY(EditAnywhere)
