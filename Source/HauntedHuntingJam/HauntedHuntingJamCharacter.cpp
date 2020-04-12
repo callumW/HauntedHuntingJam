@@ -329,7 +329,7 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 				AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
 				UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 
-				if (tree && forest) {
+				if (tree && forest && weapon_mode == WEAPON_MODE::HANDS) {
 					AttackTree(forest, tree);
 				}
 			}
@@ -523,6 +523,9 @@ void AHauntedHuntingJamCharacter::FireLogic()
 			ShootGun();
 			break;
 		case WEAPON_MODE::HANDS:
+			Use();
+			break;
+		case WEAPON_MODE::FLASHLIGHT:
 			Use();
 			break;
 		default:
