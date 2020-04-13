@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Engine/Texture2D.h"
 #include "Templates/SharedPointer.h"
 #include "Engine/StaticMesh.h"
 #include "CoreMinimal.h"
@@ -19,6 +20,8 @@ class HAUNTEDHUNTINGJAM_API AReadable : public AActor
 	UPROPERTY(EditAnywhere, Category="Gameplay")
 	FString readable_text;
 
+	UPROPERTY(EditAnywhere, Category="Gameplay")
+	UTexture2D* readable_texture;
 
 	UPROPERTY()
 	UStaticMeshComponent* mesh_component = nullptr;

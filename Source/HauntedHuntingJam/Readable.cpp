@@ -69,7 +69,9 @@ void AReadable::Read()
 			AHauntedHuntingJamHUD* HUD =
 				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
 
-			HUD->DisplayText(readable_text);
+			if (readable_texture != nullptr) {
+				HUD->DisplayReadableTexture(readable_texture);
+			}
 		}
 	}
 }
