@@ -131,6 +131,12 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 	UpdateWeaponMode();
 }
 
+void AHauntedHuntingJamCharacter::EscapeKeyPressed()
+{
+	UE_LOG(LogTemp, Display, TEXT("Escape key pressed!"));
+	ClearHUD();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -138,6 +144,8 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Escape", IE_Released, this, &AHauntedHuntingJamCharacter::EscapeKeyPressed);
 
 	// Bind jump events
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -584,6 +592,23 @@ void AHauntedHuntingJamCharacter::ToggleFlashlight()
 			if (flashlight_off_sound) {
 				UGameplayStatics::PlaySoundAtLocation(this, flashlight_off_sound,
 					GetActorLocation());
+			}
+		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::ClearHUD()
+{
+	if (Controller) {
+		APlayerController* player_controller =
+			dynamic_cast<APlayerController*>(Controller);
+		if (player_controller) {
+			// Update HUD
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+			if (HUD) {
+				HUD->DisplayReadableTexture(nullptr);
 			}
 		}
 	}

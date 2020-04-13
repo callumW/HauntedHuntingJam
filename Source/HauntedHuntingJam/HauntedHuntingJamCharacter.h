@@ -28,6 +28,10 @@ class AHauntedHuntingJamCharacter : public ACharacter
 
 	void ToggleFlashlight();
 
+	void EscapeKeyPressed();
+
+	void ClearHUD();
+
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	class USkeletalMeshComponent* Mesh1P;
