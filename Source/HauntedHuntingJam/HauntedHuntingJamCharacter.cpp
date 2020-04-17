@@ -132,7 +132,6 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 
 void AHauntedHuntingJamCharacter::EscapeKeyPressed()
 {
-	UE_LOG(LogTemp, Display, TEXT("Escape key pressed!"));
 	EndReading();
 }
 
@@ -351,7 +350,6 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 			else if (actor->GetClass() == AReadable::StaticClass()) {
 				AReadable* sign = dynamic_cast<AReadable*>(actor);
 				if (sign) {
-					// Trigger pause?
 					StartReading(sign);
 				}
 			}
