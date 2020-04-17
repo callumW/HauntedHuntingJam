@@ -41,6 +41,10 @@ void AHauntedHuntingJamHUD::DrawHUD()
 {
 	Super::DrawHUD();
 
+	if (draw_readable_mode) {
+		DrawReadableText();
+		return;
+	}
 	// Draw very simple crosshair
 
 	// find center of the Canvas
@@ -62,4 +66,38 @@ void AHauntedHuntingJamHUD::DrawHUD()
 void AHauntedHuntingJamHUD::UpdateWoodCount(uint32 new_wood_count)
 {
 	wood_count = new_wood_count;
+}
+
+void AHauntedHuntingJamHUD::DrawReadableText()
+{
+	if (readable_texture != nullptr) {
+		// find center of the Canvas
+		const FVector2D Center(Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f);
+
+		// offset by half the texture's dimensions so that the center of the texture aligns with the center of the Canvas
+		const FVector2D CrosshairDrawPosition( (Center.X - (readable_texture->GetSizeX() / 2)),
+											   (Center.Y - (readable_texture->GetSizeY() / 2)));
+
+		FCanvasTileItem TileItem( CrosshairDrawPosition, readable_texture->Resource, FLinearColor::White);
+		TileItem.BlendMode = SE_BLEND_Translucent;
+		Canvas->DrawItem( TileItem );
+	}
+}
+
+void AHauntedHuntingJamHUD::DisplayText(FString const& text)
+{
+	draw_readable_mode = true;
+	readable_text = text;
+}
+
+void AHauntedHuntingJamHUD::DisplayReadableTexture(UTexture2D* tex)
+{
+	if (tex != nullptr) {
+		draw_readable_mode = true;
+		readable_texture = tex;
+	}
+	else {
+		readable_texture = nullptr;
+		draw_readable_mode = false;
+	}
 }

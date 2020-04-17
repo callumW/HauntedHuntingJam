@@ -3,6 +3,7 @@
 #pragma once
 #include "ForestBuilder.h"
 #include "TreeComponent.h"
+#include "Readable.h"
 
 #include "Components/SpotLightComponent.h"
 #include "CoreMinimal.h"
@@ -27,6 +28,13 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	void GetFlashlight();
 
 	void ToggleFlashlight();
+
+	void EscapeKeyPressed();
+
+	void ClearHUD();
+
+	void StartReading(AReadable* readable_object);
+	void EndReading();
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
@@ -67,10 +75,14 @@ class AHauntedHuntingJamCharacter : public ACharacter
 	USpotLightComponent* flashlight = nullptr;
 	UStaticMeshComponent* flashlight_mesh = nullptr;
 
+	bool reader_mode = false;
 public:
 	AHauntedHuntingJamCharacter();
 
 	virtual void Tick(float delta_seconds) override;
+
+	virtual void AddControllerYawInput(float val);
+	virtual void AddControllerPitchInput(float val);
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)

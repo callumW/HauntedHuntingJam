@@ -130,6 +130,11 @@ void AHauntedHuntingJamCharacter::BeginPlay()
 	UpdateWeaponMode();
 }
 
+void AHauntedHuntingJamCharacter::EscapeKeyPressed()
+{
+	EndReading();
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -137,6 +142,8 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
+
+	PlayerInputComponent->BindAction("Escape", IE_Released, this, &AHauntedHuntingJamCharacter::EscapeKeyPressed);
 
 	// Bind jump events
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
@@ -164,9 +171,9 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Turn", this, &AHauntedHuntingJamCharacter::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &AHauntedHuntingJamCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &AHauntedHuntingJamCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AHauntedHuntingJamCharacter::LookUpAtRate);
 }
 
@@ -175,7 +182,7 @@ void AHauntedHuntingJamCharacter::SetupPlayerInputComponent(class UInputComponen
  */
 void AHauntedHuntingJamCharacter::SwitchWeapon()
 {
-	if (is_firing) {	// Can't switch weapon whilst firing
+	if (is_firing || reader_mode) {	// Can't switch weapon whilst firing
 		return;
 	}
 
@@ -324,24 +331,30 @@ void AHauntedHuntingJamCharacter::FindUsableObject()
 		auto hit_component = hit_result.GetComponent();
 
 		if (hit_component && actor) {
-			/*
-				Eventually we may want to add a 'UsableClass' base class or something to help us
-				decide what we have found when raycast, for now we can safely assume it is either
-				a tree, or something else which we can't interact with.
-			*/
-			AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
-			UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 
-			if (tree && forest) {
-				AttackTree(forest, tree);
-				return;
-			}	// Else not something we can interact with.
+			if (actor->GetClass() == AForestBuilder::StaticClass()) {
+				AForestBuilder* forest = dynamic_cast<AForestBuilder*>(actor);
+				UTreeComponent* tree = dynamic_cast<UTreeComponent*>(hit_component);
 
-			AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
-			if (fire) {
-				UE_LOG(LogTemp, Display, TEXT("hit fire"));
-				wood_count -= fire->Feed(wood_count);
-				UpdateHUD();
+				if (tree && forest && weapon_mode == WEAPON_MODE::HANDS) {
+					AttackTree(forest, tree);
+				}
+			}
+			else if (actor->GetClass() == AFeedableFire::StaticClass()) {
+				AFeedableFire* fire = dynamic_cast<AFeedableFire*>(actor);
+				if (fire) {
+					wood_count -= fire->Feed(wood_count);
+					UpdateHUD();
+				}
+			}
+			else if (actor->GetClass() == AReadable::StaticClass()) {
+				AReadable* sign = dynamic_cast<AReadable*>(actor);
+				if (sign) {
+					StartReading(sign);
+				}
+			}
+			else {
+				UE_LOG(LogTemp, Display, TEXT("Actor is unknown type"));
 			}
 		}
 	}
@@ -385,8 +398,13 @@ void AHauntedHuntingJamCharacter::Use()
 
 void AHauntedHuntingJamCharacter::OnFire()
 {
-	is_firing = true;
-	FireLogic();
+	if (!reader_mode) {
+		is_firing = true;
+		FireLogic();
+	}
+	else {
+		EndReading();
+	}
 }
 
 void AHauntedHuntingJamCharacter::OnResetVR()
@@ -459,7 +477,7 @@ void AHauntedHuntingJamCharacter::EndTouch(const ETouchIndex::Type FingerIndex, 
 
 void AHauntedHuntingJamCharacter::MoveForward(float Value)
 {
-	if (Value != 0.0f)
+	if (Value != 0.0f && !reader_mode)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), Value);
@@ -468,7 +486,7 @@ void AHauntedHuntingJamCharacter::MoveForward(float Value)
 
 void AHauntedHuntingJamCharacter::MoveRight(float Value)
 {
-	if (Value != 0.0f)
+	if (Value != 0.0f && !reader_mode)
 	{
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
@@ -477,14 +495,18 @@ void AHauntedHuntingJamCharacter::MoveRight(float Value)
 
 void AHauntedHuntingJamCharacter::TurnAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	if (!reader_mode) {
+		// calculate delta for this frame from the rate information
+		AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 void AHauntedHuntingJamCharacter::LookUpAtRate(float Rate)
 {
-	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	if (!reader_mode) {
+		// calculate delta for this frame from the rate information
+		AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	}
 }
 
 bool AHauntedHuntingJamCharacter::EnableTouchscreenMovement(class UInputComponent* PlayerInputComponent)
@@ -523,6 +545,9 @@ void AHauntedHuntingJamCharacter::FireLogic()
 			ShootGun();
 			break;
 		case WEAPON_MODE::HANDS:
+			Use();
+			break;
+		case WEAPON_MODE::FLASHLIGHT:
 			Use();
 			break;
 		default:
@@ -576,5 +601,52 @@ void AHauntedHuntingJamCharacter::ToggleFlashlight()
 					GetActorLocation());
 			}
 		}
+	}
+}
+
+void AHauntedHuntingJamCharacter::ClearHUD()
+{
+	if (Controller) {
+		APlayerController* player_controller =
+			dynamic_cast<APlayerController*>(Controller);
+		if (player_controller) {
+			// Update HUD
+			AHauntedHuntingJamHUD* HUD =
+				dynamic_cast<AHauntedHuntingJamHUD*>(player_controller->GetHUD());
+
+			if (HUD) {
+				HUD->DisplayReadableTexture(nullptr);
+			}
+		}
+	}
+}
+
+
+void AHauntedHuntingJamCharacter::StartReading(AReadable* readable_object)
+{
+	if (readable_object) {
+		reader_mode = true;
+		readable_object->Read();
+	}
+}
+
+void AHauntedHuntingJamCharacter::EndReading()
+{
+	reader_mode = false;
+	ClearHUD();
+}
+
+
+void AHauntedHuntingJamCharacter::AddControllerYawInput(float val)
+{
+	if (!reader_mode) {
+		Super::AddControllerYawInput(val);
+	}
+}
+
+void AHauntedHuntingJamCharacter::AddControllerPitchInput(float val)
+{
+	if (!reader_mode) {
+		Super::AddControllerPitchInput(val);
 	}
 }
