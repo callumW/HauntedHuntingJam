@@ -28,6 +28,9 @@ void AFeedableFire::BeginPlay()
 	if (fire_particle_system) {
 		starting_fire_scale = fire_particle_system->GetRelativeScale3D();
 	}
+	if (area_of_effect_actor) {
+		starting_area_effect_scale = area_of_effect_actor->GetActorRelativeScale3D();
+	}
 
 	auto children = RootComponent->GetAttachChildren();
 
@@ -61,6 +64,11 @@ void AFeedableFire::Tick(float DeltaTime)
 
 	if (audio_comp) {
 		audio_comp->SetVolumeMultiplier(new_scale_scalar);
+	}
+
+	if (area_of_effect_actor) {
+		FVector new_scale = starting_area_effect_scale * new_scale_scalar;
+		area_of_effect_actor->SetActorRelativeScale3D(new_scale);
 	}
 }
 

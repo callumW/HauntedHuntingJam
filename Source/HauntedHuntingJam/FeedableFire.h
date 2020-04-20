@@ -34,6 +34,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	USoundBase* use_sound = nullptr;
 
+	UPROPERTY(EditAnywhere, Category="Gameplay", meta=(ToolTip="Actor that represents the fires area of effect"))
+	AActor* area_of_effect_actor = nullptr;
+
+	FVector starting_area_effect_scale;
+
 	UPROPERTY(EditAnywhere, Category="Gameplay", meta=(ToolTip="Fuel usage in fuel/sec"))
 	float fuel_burn_rate = 1.0f;
 
