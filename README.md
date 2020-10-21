@@ -1,5 +1,5 @@
 # HauntedHuntingJam (As of yet unnamed)
-Entry for [Haunted Hunting Jam](https://itch.io/jam/haunted-hunting-jam).
+Entry for [Haunted Hunting Jam](https://itch.io/jam/haunted-hunting-jam). Made in Unreal Engine.
 
 Copyright © 2020 Callum Wilson & Adam Strutt
 
