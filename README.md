@@ -7,7 +7,7 @@ Copyright © 2020 Callum Wilson & Adam Strutt
 * Callum Wilson (@callumW)
 * Adam Strutt (@GitAdam)
 
-## Mechanics
+## Planned Mechanics
 * Nights get longer and longer
 * Monster cannot enter the light
 * Player has a wind-up flashlight (or some form of limited-lifespan-light)
