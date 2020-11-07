@@ -1,5 +1,5 @@
 # HauntedHuntingJam (As of yet unnamed)
-Entry for [Haunted Hunting Jam](https://itch.io/jam/haunted-hunting-jam).
+Unfinished attempt at an entry for [Haunted Hunting Jam](https://itch.io/jam/haunted-hunting-jam).
 
 Copyright © 2020 Callum Wilson & Adam Strutt
 
